@@ -198,20 +198,21 @@ function App() {
     setHelio(!helio);
   };
   const dateTime = useRef(DateTime.utc());
-  const timeLocationInitialValues = Object.fromEntries(
-    inputsParameters.map((param, index) => [
-      param,
-      index > 5 ? 0 : dateTime.current[param],
-    ])
+  const [timeLocation, setTimeLocation] = useState(
+    Object.fromEntries(
+      inputsParameters.map((param, index) => [
+        param,
+        index > 5 ? 0 : dateTime.current[param],
+      ])
+    )
   );
-  const [timeLocation, setTimeLocation] = useState(timeLocationInitialValues);
   const updatedDateTime = DateTime.utc(
-    parseInt(timeLocationInitialValues.year),
-    parseInt(timeLocationInitialValues.month),
-    parseInt(timeLocationInitialValues.day),
-    parseInt(timeLocationInitialValues.hour) || 0, // 时、分、秒等属性可以根据需要添加
-    parseInt(timeLocationInitialValues.minute) || 0,
-    parseInt(timeLocationInitialValues.second) || 0
+    parseInt(timeLocation.year),
+    parseInt(timeLocation.month),
+    parseInt(timeLocation.day),
+    parseInt(timeLocation.hour) || 0, // 时、分、秒等属性可以根据需要添加
+    parseInt(timeLocation.minute) || 0,
+    parseInt(timeLocation.second) || 0
   );
   if (updatedDateTime.isValid) {
     dateTime.current = updatedDateTime;
@@ -221,6 +222,7 @@ function App() {
     dateTime.current.toJSDate(),
     helio.current
   );
+  console.log("check planets", planetState, dateTime.current);
   const planetNonCollision = avoidCollision(planetState, diff);
   const handleInputChange = (key, value) => {
     setTimeLocation((prev) => ({ ...prev, [key]: value }));
