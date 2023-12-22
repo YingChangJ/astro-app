@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import React from "react";
 import "./App.css";
 import {
-  planetsPositions,
+  planetsPositionsList,
   parseDegree,
   zodiacSymbol,
   avoidCollision,
@@ -118,6 +118,7 @@ function Chart({ planetState, planetNonCollision }) {
   const linewidth_thin = 1;
   const linewidth_light = 0.3;
   const stroke = [5, 1, 1, 1]; //stroke of circles from outside to inside
+  console.log(planetState);
   return (
     <svg
       viewBox={
@@ -191,18 +192,6 @@ function App() {
     "latMin",
     "latSec",
   ];
-  const planetsName = [
-    "Sun",
-    "Moon",
-    "Mercury",
-    "Venus",
-    "Mars",
-    "Jupiter",
-    "Saturn",
-    "Uranus",
-    "Neptune",
-    "Pluto",
-  ];
   const diff = 7;
   const [helio, setHelio] = useState(false);
   const handleHelio = () => {
@@ -216,60 +205,25 @@ function App() {
     ])
   );
   const [timeLocation, setTimeLocation] = useState(timeLocationInitialValues);
-
-  const planetState = useRef(
-    planetsName.reduce((acc, planet) => {
-      const planetECT = planetsPositions(
-        planet,
-        dateTime.current.toJSDate(),
-        helio
-      );
-      acc[planet] = {
-        lon: planetECT.positionECTSphere.elon,
-        direction: planetECT.lonPerSecond < 0,
-      };
-      // console.log("rerender");
-      return acc;
-    }, {})
+  const updatedDateTime = DateTime.utc(
+    parseInt(timeLocationInitialValues.year),
+    parseInt(timeLocationInitialValues.month),
+    parseInt(timeLocationInitialValues.day),
+    parseInt(timeLocationInitialValues.hour) || 0, // 时、分、秒等属性可以根据需要添加
+    parseInt(timeLocationInitialValues.minute) || 0,
+    parseInt(timeLocationInitialValues.second) || 0
   );
-  const planetNonCollision = useRef(avoidCollision(planetState.current, diff));
+  if (updatedDateTime.isValid) {
+    dateTime.current = updatedDateTime;
+  }
+
+  const planetState = planetsPositionsList(
+    dateTime.current.toJSDate(),
+    helio.current
+  );
+  const planetNonCollision = avoidCollision(planetState, diff);
   const handleInputChange = (key, value) => {
-    setTimeLocation((prev) => {
-      const updatedTimeLocation = {
-        ...prev,
-        [key]: value,
-      };
-      // 执行额外的计算逻辑
-      const updatedDateTime = DateTime.utc(
-        parseInt(updatedTimeLocation.year),
-        parseInt(updatedTimeLocation.month),
-        parseInt(updatedTimeLocation.day),
-        parseInt(updatedTimeLocation.hour) || 0, // 时、分、秒等属性可以根据需要添加
-        parseInt(updatedTimeLocation.minute) || 0,
-        parseInt(updatedTimeLocation.second) || 0
-      );
-
-      if (updatedDateTime.isValid) {
-        dateTime.current = updatedDateTime;
-        const updatedPlanetState = {};
-        Object.keys(planetState.current).map((planet) => {
-          const planetECT = planetsPositions(
-            planet,
-            updatedDateTime.toJSDate(),
-            helio
-          );
-          updatedPlanetState[planet] = {
-            lon: planetECT.positionECTSphere.elon,
-            direction: planetECT.lonPerSecond < 0,
-          };
-        });
-        planetState.current = updatedPlanetState;
-        planetNonCollision.current = avoidCollision(updatedPlanetState, diff);
-      }
-
-      // 返回更新后的 timeLocation
-      return updatedTimeLocation;
-    });
+    setTimeLocation((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -283,8 +237,8 @@ function App() {
         handleInputChange={handleInputChange}
       />
       <Chart
-        planetState={planetState.current}
-        planetNonCollision={planetNonCollision.current}
+        planetState={planetState}
+        planetNonCollision={planetNonCollision}
       />
     </main>
   );

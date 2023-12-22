@@ -1,6 +1,32 @@
 /* eslint-disable react/prop-types */
 import * as Astronomy from "./lib/astronomy.min.js";
-export function planetsPositions(body, date, helio = false) {
+export function planetsPositionsList(date, helio = false) {
+  const planetsName = [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+  ];
+
+  const list = {};
+
+  planetsName.forEach((planet) => {
+    const temp = planetsPositions(planet, date, helio);
+    list[planet] = {
+      lon: temp.positionECTSphere.elon,
+      direction: temp.lonPerSecond,
+    };
+  });
+
+  return list;
+}
+function planetsPositions(body, date, helio = false) {
   const astroTime = new Astronomy.AstroTime(date);
   const astroTimeAddSecond = astroTime.AddDays(1 / 86400);
   console.log("cal");
@@ -23,12 +49,6 @@ export function planetsPositions(body, date, helio = false) {
     stateVectorEQJAddSecond
   );
   const lonPerSecond = positionECTSphereAddSecond.elon - positionECTSphere.elon;
-  /* const relativeVelocityX = vx_mars - vx_earth;
-const relativeVelocityY = vy_mars - vy_earth;
-const relativeVelocityZ = vz_mars - vz_earth;
- */
-  // console.log("positionS", positionECTSphere);
-  // console.log(velocityECTSphere);
   return {
     positionECTSphere: positionECTSphere,
     lonPerSecond: lonPerSecond,
