@@ -218,10 +218,7 @@ function App() {
     dateTime.current = updatedDateTime;
   }
 
-  const planetState = planetsPositionsList(
-    dateTime.current.toJSDate(),
-    helio.current
-  );
+  const planetState = planetsPositionsList(dateTime.current.toJSDate(), helio);
   console.log("check planets", planetState, dateTime.current);
   const planetNonCollision = avoidCollision(planetState, diff);
   const handleInputChange = (key, value) => {
