@@ -62,6 +62,12 @@ export function parseDegree(deg) {
   const minute = Math.floor((remainder - degree) * 60);
   return { zodiac: zodiac, degree: degree, minute: minute };
 }
+export function parseDegreeNoZodiac(deg) {
+  const degree = Math.floor(deg);
+  const minute = Math.floor((deg - degree) * 60);
+  const second = Math.round(((deg - degree) * 60 - minute) * 60);
+  return { degree: degree, minute: minute, second: second };
+}
 export function degreesToRadians(degree) {
   return degree * (Math.PI / 180);
 }
@@ -80,67 +86,43 @@ export function avoidCollision(degreesList, diff = 5) {
     // could be while (true)
     let flag = true;
     let index = 0;
-
     while (index < groups.length) {
       const groupsLength = groups.length;
       const nextIndex = (index + 1) % groupsLength;
       // if these two group cover 360 deg
-      if (groups[index][1] < groups[nextIndex][1]) {
-        //if they collide
-        if (
-          groups[index][1] + groups[index][2] + diff >
-          groups[nextIndex][1] - groups[nextIndex][2]
-        ) {
-          //merge the two group
-          groups[index][0] = groups[index][0].concat(groups[nextIndex][0]);
-          groups[index][1] = middle(
-            degrees[groups[index][0][groups[index][0].length - 1]],
-            degrees[groups[index][0][0]]
-          );
-          groups[index][2] = ((groups[index][0].length - 1) * diff) / 2;
-          groups.splice(nextIndex, 1); //delete the second
-          flag = false;
-        } else {
-          index++;
-        }
+      const boolOver360 = groups[index][1] < groups[nextIndex][1];
+      //if they collide
+      const boolMerge =
+        groups[index][1] + groups[index][2] + diff >
+        groups[nextIndex][1] - groups[nextIndex][2] + (boolOver360 ? 0 : 360);
+      if (boolMerge) {
+        //merge the two group
+        groups[index][0] = groups[index][0].concat(groups[nextIndex][0]);
+        groups[index][1] = middle(
+          degrees[groups[index][0][groups[index][0].length - 1]],
+          degrees[groups[index][0][0]]
+        );
+        groups[index][2] = ((groups[index][0].length - 1) * diff) / 2;
+        groups.splice(nextIndex, 1); //delete the second
+        flag = false;
       } else {
-        if (
-          groups[index][1] + groups[index][2] + diff >
-          groups[nextIndex][1] + 360 - groups[nextIndex][2]
-        ) {
-          groups[index][0] = groups[index][0].concat(groups[nextIndex][0]);
-          groups[index][1] = middle(
-            degrees[groups[index][0][groups[index][0].length - 1]],
-            degrees[groups[index][0][0]]
-          );
-          groups[index][2] = ((groups[index][0].length - 1) * diff) / 2;
-          groups.splice(nextIndex, 1);
-          flag = false;
-        } else {
-          index++;
-        }
+        index++;
       }
     }
-
     if (flag) {
       break;
     }
   }
-
   groups.forEach((group) => {
     const n = group[0].length;
-
     if (n === 1) {
       return;
     }
-
     const middle = group[1];
-
     group[0].forEach((planet, index) => {
       degrees[planet] = (middle - group[2] + diff * index) % 360;
     });
   });
-
   return degrees;
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef } from "react";
 import React from "react";
 import "./App.css";
 import {
@@ -8,8 +8,10 @@ import {
   parseDegree,
   zodiacSymbol,
   avoidCollision,
+  parseDegreeNoZodiac,
 } from "./utils.js";
 import { Text, Symbols, Line } from "./components/SVGComponents.jsx";
+import GeoComp from "./components/Geo.jsx";
 import { DateTime } from "./lib/luxon.min.js";
 function Circle({ radius, stroke }) {
   return (
@@ -138,7 +140,7 @@ function Chart({ planetState, planetNonCollision }) {
           <Planet
             planet={planet}
             lon={planetState[planet].lon}
-            direction={planetState[planet].direction}
+            direction={planetState[planet].direction < 0}
             radius_planet={radius_planet}
             radius_planet_degree={radius_planet_degree}
             radius_planet_zodiac={radius_planet_zodiac}
@@ -160,9 +162,9 @@ function Chart({ planetState, planetNonCollision }) {
 }
 function Inputs({ timeLocation, handleInputChange }) {
   return (
-    <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-1">
+    <section className="grid grid-cols-3 gap-2">
       {Object.keys(timeLocation).map((param) => (
-        <div key={param} className="mb-3 text-center">
+        <div key={param} className="mb-2 text-center">
           <label>{param}</label>
           <input
             className="w-full md:w-12 lg:w-12 text-center"
@@ -206,6 +208,26 @@ function App() {
       ])
     )
   );
+  const [userLocation, setUserLocation] = useState(null);
+  // const handleUserLocationChange = (newLocation) => {
+  //   setUserLocation(newLocation);
+  // };
+  const updateGeo = (newLocation) => {
+    console.log("updateGeo", newLocation);
+
+    const lat = parseDegreeNoZodiac(newLocation.latitude);
+    const lon = parseDegreeNoZodiac(newLocation.longitude);
+    setTimeLocation((prev) => ({
+      ...prev,
+      lonDeg: lon.degree,
+      lonMin: lon.minute,
+      lonSec: lon.second,
+      latDeg: lat.degree,
+      latMin: lat.minute,
+      latSec: lat.second,
+    }));
+    console.log("updateGeo2", timeLocation);
+  };
   const updatedDateTime = DateTime.utc(
     parseInt(timeLocation.year),
     parseInt(timeLocation.month),
@@ -215,7 +237,9 @@ function App() {
     parseInt(timeLocation.second) || 0
   );
   if (updatedDateTime.isValid) {
-    dateTime.current = updatedDateTime;
+    dateTime.current = updatedDateTime.plus({
+      seconds: (timeLocation.hour % 1) * 3600,
+    });
   }
 
   const planetState = planetsPositionsList(dateTime.current.toJSDate(), helio);
@@ -227,10 +251,17 @@ function App() {
 
   return (
     <main className="flex flex-col items-center">
-      <p>{timeLocation.year}</p>
+      <p>{dateTime.current.toString()}</p>
       <button onClick={handleHelio}>
         {helio ? "Heliocentric" : "Geocentric"}
       </button>
+      <GeoComp setUserLocation={setUserLocation} updateGeo={updateGeo} />
+      {userLocation && (
+        <div>
+          <p>Latitude: {userLocation.latitude}</p>
+          <p>Longitude: {userLocation.longitude}</p>
+        </div>
+      )}
       <Inputs
         timeLocation={timeLocation}
         handleInputChange={handleInputChange}
