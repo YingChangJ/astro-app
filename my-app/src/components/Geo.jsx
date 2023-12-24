@@ -33,7 +33,7 @@ function LocationComponent({ updateGeo }) {
   return (
     <>
       {/* Create a button that is mapped to the function which retrieves the user's location */}
-      <button onClick={getUserLocation}>Get User Location</button>
+      <button onClick={getUserLocation}>Get Location</button>
     </>
   );
 }

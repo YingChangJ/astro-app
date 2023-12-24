@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import React from "react";
 import "./App.css";
+import { useWorker } from "react-hooks-worker";
 import {
   planetsPositionsList,
   parseDegree,
@@ -10,9 +11,11 @@ import {
   avoidCollision,
   parseDegreeNoZodiac,
   houses,
+  colorTheme,
 } from "./utils.js";
 import { Text, Symbols, Line } from "./components/SVGComponents.jsx";
 import GeoComp from "./components/Geo.jsx";
+import { Cusps } from "./components/Chart-related.jsx";
 import { DateTime } from "./lib/luxon.min.js";
 function Circle({ radius, stroke }) {
   return (
@@ -43,12 +46,12 @@ function Planet({
   leftDegree,
 }) {
   const resPosition = parseDegree(lon);
-  const fontsize_degree = "80%";
-  const fontsize_zodiac = "80%";
+  const fontsize_degree = "75%";
+  const fontsize_zodiac = "75%";
   const fontsize_minute = "50%";
   const fontsize_retro = "40%";
   const element = Math.floor(resPosition.zodiac % 4);
-  const color = ["#cc0000", "#f1c232", "#3d85c6", "#6aa84f"][element];
+  const color = colorTheme(element);
   return (
     <>
       <Symbols
@@ -67,6 +70,7 @@ function Planet({
         // color="black"
         fontSize={fontsize_degree}
         leftDegree={leftDegree}
+        fontWeight="bold"
       />
       <Text
         text={zodiacSymbol(resPosition.zodiac)}
@@ -101,22 +105,16 @@ function Planet({
 function Chart({ planetState, planetNonCollision, cusps }) {
   const svgWidth = 404;
 
-  const radius_zodiac_num = 42;
-  const radius_house_num = 20;
+  const radius_out = 49;
+  const radius_zodiac = 42;
+  const radius_house = 20;
+  const radius_inner = 15;
 
-  const radius_out = "49%";
-  const radius_zodiac = radius_zodiac_num + "%";
-  const radius_house = radius_house_num + "%";
-  const radius_inner = "15%";
-
-  const radius_planet = radius_zodiac_num * 0.8 + radius_house_num * 0.2;
-  const radius_planet_degree =
-    radius_zodiac_num * 0.57 + radius_house_num * 0.43;
-  const radius_planet_zodiac =
-    radius_zodiac_num * 0.36 + radius_house_num * 0.64;
-  const radius_planet_minute =
-    radius_zodiac_num * 0.205 + radius_house_num * 0.795;
-  const radius_planet_retro = radius_house_num * 1.1;
+  const radius_planet = radius_zodiac * 0.8 + radius_house * 0.2;
+  const radius_planet_degree = radius_zodiac * 0.57 + radius_house * 0.43;
+  const radius_planet_zodiac = radius_zodiac * 0.36 + radius_house * 0.64;
+  const radius_planet_minute = radius_zodiac * 0.205 + radius_house * 0.795;
+  const radius_planet_retro = radius_house * 1.1;
 
   const short_length_pl = 0.1;
   const short_length_xtick_minor = 0.15;
@@ -138,9 +136,15 @@ function Chart({ planetState, planetNonCollision, cusps }) {
     >
       {[radius_out, radius_house, radius_zodiac, radius_inner].map(
         (r, index) => (
-          <Circle key={r} radius={r} stroke={stroke[index]} />
+          <Circle key={r} radius={r + "%"} stroke={stroke[index]} />
         )
       )}
+      <Cusps
+        cusps={cusps}
+        startRadius={radius_zodiac}
+        length={radius_zodiac - radius_house}
+        zodiacRadius={radius_zodiac * 0.5 + radius_out * 0.5}
+      />
       {Object.keys(planetState).map((planet) => (
         // <React.Fragment>
         <React.Fragment key={planet}>
@@ -158,7 +162,7 @@ function Chart({ planetState, planetNonCollision, cusps }) {
             leftDegree={cusps[0]}
           />
           <Line
-            startRadius={radius_zodiac_num}
+            startRadius={radius_zodiac}
             length={2}
             theta={planetState[planet].lon}
             leftDegree={cusps[0]}
@@ -188,10 +192,14 @@ function Inputs({
       </div>
     ));
   return (
-    <section className="grid grid-cols-3 gap-2">
-      {renderInput(timeInputs, handleTimeInputsChange)}
-      {renderInput(locationInputs, handleLocationInputsChange)}
-    </section>
+    <>
+      <section className="grid grid-cols-3 gap-2">
+        {renderInput(timeInputs, handleTimeInputsChange)}
+      </section>
+      <section className="grid grid-cols-3 gap-2">
+        {renderInput(locationInputs, handleLocationInputsChange)}
+      </section>
+    </>
   );
 }
 function App() {
@@ -202,6 +210,7 @@ function App() {
     "hour",
     "minute",
     "second",
+    "offset",
   ];
   const inputsParametersLocation = [
     "lonDeg",
@@ -227,7 +236,10 @@ function App() {
   const locationInputs = useRef(
     Object.fromEntries(inputsParametersLocation.map((param) => [param, 0]))
   );
-  const [forceRender, setForceRender] = useState(false);
+  //others
+  const [, setForceRender] = useState(false);
+  // const worker = useWorker(new Worker("./js/sweph.js"));
+  // const [result, setResult] = useState("");
 
   //Handle funs
   const handleHelio = () => {
@@ -235,14 +247,18 @@ function App() {
   };
   const handleTimeInputChange = (key, value) => {
     timeInputs.current = { ...timeInputs.current, [key]: value };
+    const offsetInMinutes = parseFloat(timeInputs.current.offset) * 60;
     //Calculates
-    const updatedDateTime = DateTime.utc(
-      parseInt(timeInputs.current.year),
-      parseInt(timeInputs.current.month),
-      parseInt(timeInputs.current.day),
-      parseInt(timeInputs.current.hour) || 0, // 时、分、秒等属性可以根据需要添加
-      parseInt(timeInputs.current.minute) || 0,
-      parseInt(timeInputs.current.second) || 0
+    const updatedDateTime = DateTime.fromObject(
+      {
+        year: parseInt(timeInputs.current.year),
+        month: parseInt(timeInputs.current.month),
+        day: parseInt(timeInputs.current.day),
+        hour: parseInt(timeInputs.current.hour) || 0, // 时、分、秒等属性可以根据需要添加
+        minute: parseInt(timeInputs.current.minute) || 0,
+        second: parseInt(timeInputs.current.second) || 0,
+      },
+      { zone: offsetInMinutes }
     );
     if (updatedDateTime.isValid) {
       setDateTime(
@@ -258,12 +274,11 @@ function App() {
     locationInputs.current = { ...locationInputs.current, [key]: value };
     const { lonDeg, latDeg, lonMin, latMin, lonSec, latSec } =
       locationInputs.current;
-    const trimAndParse = (deg, min, sec) =>
-      parseFloat(deg.trim()) +
-      parseFloat(min.trim()) / 60 +
-      parseFloat(sec.trim()) / 3600;
-    const longitude = trimAndParse(lonDeg, lonMin, lonSec);
-    const latitude = trimAndParse(latDeg, latMin, latSec);
+    const longitude =
+      parseFloat(lonDeg) + parseFloat(lonMin) / 60 + parseFloat(lonSec) / 3600;
+    const latitude =
+      parseFloat(latDeg) + parseFloat(latMin) / 60 + parseFloat(latSec) / 3600;
+
     if (!isNaN(longitude) && !isNaN(latitude)) {
       setLocation({ longitude, latitude });
     } else {
@@ -273,6 +288,59 @@ function App() {
   const triggerRerender = () => {
     setForceRender((prev) => !prev);
   };
+  // const handleCalculate = () => {
+  //   const message = [
+  //     parseInt(timeInputs.current.year),
+  //     parseInt(timeInputs.current.month),
+  //     parseInt(timeInputs.current.day),
+  //     parseInt(timeInputs.current.hour),
+  //     parseInt(timeInputs.current.minute),
+  //     parseInt(timeInputs.current.second),
+  //     parseInt(locationInputs.current.lonDeg),
+  //     parseInt(locationInputs.current.lonMin),
+  //     parseInt(locationInputs.current.lonSec),
+  //     "E", //sLonEW,
+  //     parseInt(locationInputs.current.latDeg),
+  //     parseInt(locationInputs.current.latMin),
+  //     parseInt(locationInputs.current.latSec),
+  //     "N", //sLatNS,
+  //     "P", //sHouse,
+  //   ];
+  //   worker.postMessage(message);
+  // };
+
+  // // useEffect for handling worker messages
+  // useEffect(() => {
+  //   const handleWorkerMessage = (event) => {
+  //     const jsonResult = JSON.parse(event.data);
+  //     setResult(jsonResult);
+  //   };
+
+  //   worker.addEventListener("message", handleWorkerMessage);
+
+  //   return () => {
+  //     worker.removeEventListener("message", handleWorkerMessage);
+  //   };
+  // }, [worker]);
+
+  // // useEffect for updating time
+  // useEffect(() => {
+  //   const updateTime = () => {
+  //     const newTime = DateTime.local();
+  //     setDateTime(newTime);
+  //     timeInputs.current = {
+  //       year: newTime.year,
+  //       month: newTime.month,
+  //       day: newTime.day,
+  //       hour: newTime.hour,
+  //       minute: newTime.month,
+  //       second: newTime.second,
+  //       offset: newTime.offset / 60,
+  //     };
+  //   };
+
+  //   updateTime(); // Call on mount
+  // }, []); // Empty dependency array ensures it runs only once
 
   //Updates funs
   const updateGeo = (newLocation) => {
@@ -288,6 +356,19 @@ function App() {
     };
     setLocation(newLocation);
   };
+  const updateTime = () => {
+    const newTime = DateTime.local();
+    setDateTime(DateTime.local());
+    timeInputs.current = {
+      year: newTime.year,
+      month: newTime.month,
+      day: newTime.day,
+      hour: newTime.hour,
+      minute: newTime.month,
+      second: newTime.second,
+      offset: newTime.offset / 60,
+    };
+  };
 
   const planetState = planetsPositionsList(dateTime.toJSDate(), helio);
   const planetNonCollision = avoidCollision(planetState, diff);
@@ -296,18 +377,18 @@ function App() {
     location.longitude,
     location.latitude
   );
+
   return (
     <main className="flex flex-col items-center">
       <p>{dateTime.toString()}</p>
       <button onClick={handleHelio}>
         {helio ? "Heliocentric" : "Geocentric"}
       </button>
-      <GeoComp updateGeo={updateGeo} />
 
-      {/* <div>
-        <p>{cusps[0]}</p>
-      </div> */}
-
+      <div className="grid grid-cols-2 gap-4">
+        <GeoComp updateGeo={updateGeo} />
+        <button onClick={updateTime}>Get Time</button>
+      </div>
       <Inputs
         timeInputs={timeInputs.current}
         handleTimeInputsChange={handleTimeInputChange}

@@ -73,6 +73,10 @@ export function degreesToRadians(degree) {
 export function zodiacSymbol(zodiac) {
   return String.fromCharCode(zodiac + 9800) + "\u{FE0E}";
 }
+export function colorTheme(element) {
+  const colors = ["#cc0000", "#f1c232", "#3d85c6", "#6aa84f"];
+  return colors[element];
+}
 export function avoidCollision(degreesList, diff = 5) {
   //flatten
   const degrees = Object.fromEntries(
@@ -136,13 +140,10 @@ function middle(degree1, degree2) {
 function trisection(degree1, degree2) {
   //degree1 >= degree2 if not cross 360, find the trisection points, when degree2 counter-clockwise to degree1
   // Calculate the first and second trisection points
-  const trisect1 = (2 * degree1 + degree2) / 3;
-  const trisect2 = (degree1 + 2 * degree2) / 3;
-  if (degree1 >= degree2) {
-    return [trisect1, trisect2];
-  } else {
-    return [(trisect1 + 120) % 360, (trisect1 + 240) % 360];
-  }
+  const deg1 = degree1 >= degree2 ? degree1 : degree1 + 360;
+  const trisect1 = (2 * deg1 + degree2) / 3;
+  const trisect2 = (deg1 + 2 * degree2) / 3;
+  return [trisect1 % 360, trisect2 % 360];
 }
 function distance(degree1, degree2) {
   //degree1 >= degree2 if not cross 360, find the distance, when degree2 counter-clockwise to degree1
@@ -187,9 +188,9 @@ export function houses(time, lon, lat) {
   cusps[6] = (180 + asc) % 360; //dec
   cusps[9] = mc;
   //Equal House
-  [cusps[1], cusps[2]] = trisection(cusps[0], cusps[3]);
-  [cusps[4], cusps[5]] = trisection(cusps[3], cusps[6]);
-  [cusps[7], cusps[8]] = trisection(cusps[6], cusps[9]);
-  [cusps[10], cusps[11]] = trisection(cusps[9], cusps[0]);
+  [cusps[2], cusps[1]] = trisection(cusps[3], cusps[0]);
+  [cusps[5], cusps[4]] = trisection(cusps[6], cusps[3]);
+  [cusps[8], cusps[7]] = trisection(cusps[9], cusps[6]);
+  [cusps[11], cusps[10]] = trisection(cusps[0], cusps[9]);
   return cusps;
 }
