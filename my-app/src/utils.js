@@ -54,7 +54,6 @@ function planetsPositions(body, date, helio = false) {
     lonPerSecond: lonPerSecond,
   };
 }
-
 export function parseDegree(deg) {
   const zodiac = Math.floor(deg / 30);
   const remainder = deg % 30;
@@ -125,12 +124,72 @@ export function avoidCollision(degreesList, diff = 5) {
   });
   return degrees;
 }
-
 function middle(degree1, degree2) {
-  //deg1 >= deg2, find the middle point deg2 counter-clockwise to deg1
-  let middle = (degree1 + degree2) / 2;
-  if (degree1 < degree2) {
-    middle = (middle + 180) % 360;
+  //degree1 >= degree2 if not cross 360, find the middle point, when degree2 counter-clockwise to degree1
+  const middle = (degree1 + degree2) / 2;
+  if (degree1 >= degree2) {
+    return middle;
+  } else {
+    return (middle + 180) % 360;
   }
-  return middle;
+}
+function trisection(degree1, degree2) {
+  //degree1 >= degree2 if not cross 360, find the trisection points, when degree2 counter-clockwise to degree1
+  // Calculate the first and second trisection points
+  const trisect1 = (2 * degree1 + degree2) / 3;
+  const trisect2 = (degree1 + 2 * degree2) / 3;
+  if (degree1 >= degree2) {
+    return [trisect1, trisect2];
+  } else {
+    return [(trisect1 + 120) % 360, (trisect1 + 240) % 360];
+  }
+}
+function distance(degree1, degree2) {
+  //degree1 >= degree2 if not cross 360, find the distance, when degree2 counter-clockwise to degree1
+  if (degree1 >= degree2) {
+    return degree1 - degree2;
+  } else {
+    return degree1 + 360 - degree2;
+  }
+}
+export function houses(time, lon, lat) {
+  const siderealTime = Astronomy.SiderealTime(time);
+
+  const e = (Astronomy.e_tilt(time).tobl / 360) * 2 * Math.PI;
+  const theta = ((siderealTime + lon / 15) / 24) * 2 * Math.PI;
+  const fi = (lat / 180) * Math.PI;
+  //asc and mc
+  let asc =
+    (Math.atan(
+      -Math.cos(theta) /
+        (Math.sin(theta) * Math.cos(e) + Math.tan(fi) * Math.sin(e))
+    ) *
+      180) /
+    Math.PI;
+  let mc =
+    (Math.atan(Math.sin(theta) / Math.cos(theta) / Math.cos(e)) * 180) /
+    Math.PI;
+
+  if (asc < 0) asc += 180;
+  if (mc < 0) mc += 180;
+  const distanceLSTtoASC = distance(asc, siderealTime * 15 + lon);
+  if (distanceLSTtoASC >= 180) {
+    asc += 180;
+  }
+  const distanceMCtoASC = distance(asc, mc);
+  if (distanceMCtoASC >= 180) {
+    mc += 180;
+  }
+
+  const cusps = new Array(12).fill(null);
+  cusps[0] = asc;
+  cusps[3] = (180 + mc) % 360; //ic
+  cusps[6] = (180 + asc) % 360; //dec
+  cusps[9] = mc;
+  //Equal House
+  [cusps[1], cusps[2]] = trisection(cusps[0], cusps[3]);
+  [cusps[4], cusps[5]] = trisection(cusps[3], cusps[6]);
+  [cusps[7], cusps[8]] = trisection(cusps[6], cusps[9]);
+  [cusps[10], cusps[11]] = trisection(cusps[9], cusps[0]);
+  return cusps;
 }

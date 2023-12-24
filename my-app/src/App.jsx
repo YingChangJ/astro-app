@@ -9,6 +9,7 @@ import {
   zodiacSymbol,
   avoidCollision,
   parseDegreeNoZodiac,
+  houses,
 } from "./utils.js";
 import { Text, Symbols, Line } from "./components/SVGComponents.jsx";
 import GeoComp from "./components/Geo.jsx";
@@ -39,6 +40,7 @@ function Planet({
   radius_planet_retro,
   sizeCanvas,
   planetNonCollision,
+  leftDegree,
 }) {
   const resPosition = parseDegree(lon);
   const fontsize_degree = "80%";
@@ -56,6 +58,7 @@ function Planet({
         scale={0.05}
         sizeCanves={sizeCanvas}
         color={color}
+        leftDegree={leftDegree}
       />
       <Text
         text={resPosition.degree}
@@ -63,6 +66,7 @@ function Planet({
         theta={planetNonCollision}
         // color="black"
         fontSize={fontsize_degree}
+        leftDegree={leftDegree}
       />
       <Text
         text={zodiacSymbol(resPosition.zodiac)}
@@ -70,6 +74,7 @@ function Planet({
         theta={planetNonCollision}
         color={color}
         fontSize={fontsize_zodiac}
+        leftDegree={leftDegree}
         // fontWeight="normal"
       />
       <Text
@@ -78,6 +83,7 @@ function Planet({
         theta={planetNonCollision}
         // color={color}
         fontSize={fontsize_minute}
+        leftDegree={leftDegree}
       />
       {direction && (
         <Text
@@ -86,12 +92,13 @@ function Planet({
           theta={planetNonCollision}
           color="red"
           fontSize={fontsize_retro}
+          leftDegree={leftDegree}
         />
       )}
     </>
   );
 }
-function Chart({ planetState, planetNonCollision }) {
+function Chart({ planetState, planetNonCollision, cusps }) {
   const svgWidth = 404;
 
   const radius_zodiac_num = 42;
@@ -120,7 +127,7 @@ function Chart({ planetState, planetNonCollision }) {
   const linewidth_thin = 1;
   const linewidth_light = 0.3;
   const stroke = [5, 1, 1, 1]; //stroke of circles from outside to inside
-  console.log(planetState);
+
   return (
     <svg
       viewBox={
@@ -148,45 +155,55 @@ function Chart({ planetState, planetNonCollision }) {
             radius_planet_retro={radius_planet_retro}
             sizeCanvas={svgWidth}
             planetNonCollision={planetNonCollision[planet]}
+            leftDegree={cusps[0]}
           />
           <Line
             startRadius={radius_zodiac_num}
             length={2}
             theta={planetState[planet].lon}
-            // color =
+            leftDegree={cusps[0]}
           />
         </React.Fragment>
       ))}
     </svg>
   );
 }
-function Inputs({ timeLocation, handleInputChange }) {
+function Inputs({
+  timeInputs,
+  locationInputs,
+  handleTimeInputsChange,
+  handleLocationInputsChange,
+}) {
+  const renderInput = (inputs, handleChange) =>
+    Object.keys(inputs).map((param) => (
+      <div key={param} className="mb-2 text-center">
+        <label>{param}</label>
+        <input
+          className="w-full md:w-12 lg:w-12 text-center"
+          type="number"
+          step="any"
+          value={inputs[param]}
+          onChange={(e) => handleChange(param, e.target.value)}
+        />
+      </div>
+    ));
   return (
     <section className="grid grid-cols-3 gap-2">
-      {Object.keys(timeLocation).map((param) => (
-        <div key={param} className="mb-2 text-center">
-          <label>{param}</label>
-          <input
-            className="w-full md:w-12 lg:w-12 text-center"
-            type="number"
-            step="any"
-            value={timeLocation[param]}
-            onChange={(e) => handleInputChange(param, e.target.value)}
-          />
-        </div>
-      ))}
-      {}
+      {renderInput(timeInputs, handleTimeInputsChange)}
+      {renderInput(locationInputs, handleLocationInputsChange)}
     </section>
   );
 }
 function App() {
-  const inputsParameters = [
+  const inputsParametersTime = [
     "year",
     "month",
     "day",
     "hour",
     "minute",
     "second",
+  ];
+  const inputsParametersLocation = [
     "lonDeg",
     "lonMin",
     "lonSec",
@@ -194,81 +211,113 @@ function App() {
     "latMin",
     "latSec",
   ];
-  const diff = 7;
+  const diff = 7; //avoid planets overlapped in chart
+
+  //Hooks
   const [helio, setHelio] = useState(false);
+  //location and datetime: they are
+  const [dateTime, setDateTime] = useState(DateTime.utc());
+  const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
+  //record inputs
+  const timeInputs = useRef(
+    Object.fromEntries(
+      inputsParametersTime.map((param) => [param, dateTime[param]])
+    )
+  );
+  const locationInputs = useRef(
+    Object.fromEntries(inputsParametersLocation.map((param) => [param, 0]))
+  );
+  const [forceRender, setForceRender] = useState(false);
+
+  //Handle funs
   const handleHelio = () => {
     setHelio(!helio);
   };
-  const dateTime = useRef(DateTime.utc());
-  const [timeLocation, setTimeLocation] = useState(
-    Object.fromEntries(
-      inputsParameters.map((param, index) => [
-        param,
-        index > 5 ? 0 : dateTime.current[param],
-      ])
-    )
-  );
-  const [userLocation, setUserLocation] = useState(null);
-  // const handleUserLocationChange = (newLocation) => {
-  //   setUserLocation(newLocation);
-  // };
-  const updateGeo = (newLocation) => {
-    console.log("updateGeo", newLocation);
+  const handleTimeInputChange = (key, value) => {
+    timeInputs.current = { ...timeInputs.current, [key]: value };
+    //Calculates
+    const updatedDateTime = DateTime.utc(
+      parseInt(timeInputs.current.year),
+      parseInt(timeInputs.current.month),
+      parseInt(timeInputs.current.day),
+      parseInt(timeInputs.current.hour) || 0, // 时、分、秒等属性可以根据需要添加
+      parseInt(timeInputs.current.minute) || 0,
+      parseInt(timeInputs.current.second) || 0
+    );
+    if (updatedDateTime.isValid) {
+      setDateTime(
+        updatedDateTime.plus({
+          seconds: (parseFloat(timeInputs.current.hour) % 1) * 3600,
+        })
+      );
+    } else {
+      triggerRerender();
+    }
+  };
+  const handleLocationInputChange = (key, value) => {
+    locationInputs.current = { ...locationInputs.current, [key]: value };
+    const { lonDeg, latDeg, lonMin, latMin, lonSec, latSec } =
+      locationInputs.current;
+    const trimAndParse = (deg, min, sec) =>
+      parseFloat(deg.trim()) +
+      parseFloat(min.trim()) / 60 +
+      parseFloat(sec.trim()) / 3600;
+    const longitude = trimAndParse(lonDeg, lonMin, lonSec);
+    const latitude = trimAndParse(latDeg, latMin, latSec);
+    if (!isNaN(longitude) && !isNaN(latitude)) {
+      setLocation({ longitude, latitude });
+    } else {
+      triggerRerender();
+    }
+  };
+  const triggerRerender = () => {
+    setForceRender((prev) => !prev);
+  };
 
+  //Updates funs
+  const updateGeo = (newLocation) => {
     const lat = parseDegreeNoZodiac(newLocation.latitude);
     const lon = parseDegreeNoZodiac(newLocation.longitude);
-    setTimeLocation((prev) => ({
-      ...prev,
+    locationInputs.current = {
       lonDeg: lon.degree,
       lonMin: lon.minute,
       lonSec: lon.second,
       latDeg: lat.degree,
       latMin: lat.minute,
       latSec: lat.second,
-    }));
-    console.log("updateGeo2", timeLocation);
+    };
+    setLocation(newLocation);
   };
-  const updatedDateTime = DateTime.utc(
-    parseInt(timeLocation.year),
-    parseInt(timeLocation.month),
-    parseInt(timeLocation.day),
-    parseInt(timeLocation.hour) || 0, // 时、分、秒等属性可以根据需要添加
-    parseInt(timeLocation.minute) || 0,
-    parseInt(timeLocation.second) || 0
-  );
-  if (updatedDateTime.isValid) {
-    dateTime.current = updatedDateTime.plus({
-      seconds: (timeLocation.hour % 1) * 3600,
-    });
-  }
 
-  const planetState = planetsPositionsList(dateTime.current.toJSDate(), helio);
-  console.log("check planets", planetState, dateTime.current);
+  const planetState = planetsPositionsList(dateTime.toJSDate(), helio);
   const planetNonCollision = avoidCollision(planetState, diff);
-  const handleInputChange = (key, value) => {
-    setTimeLocation((prev) => ({ ...prev, [key]: value }));
-  };
-
+  const cusps = houses(
+    dateTime.toJSDate(),
+    location.longitude,
+    location.latitude
+  );
   return (
     <main className="flex flex-col items-center">
-      <p>{dateTime.current.toString()}</p>
+      <p>{dateTime.toString()}</p>
       <button onClick={handleHelio}>
         {helio ? "Heliocentric" : "Geocentric"}
       </button>
-      <GeoComp setUserLocation={setUserLocation} updateGeo={updateGeo} />
-      {userLocation && (
-        <div>
-          <p>Latitude: {userLocation.latitude}</p>
-          <p>Longitude: {userLocation.longitude}</p>
-        </div>
-      )}
+      <GeoComp updateGeo={updateGeo} />
+
+      {/* <div>
+        <p>{cusps[0]}</p>
+      </div> */}
+
       <Inputs
-        timeLocation={timeLocation}
-        handleInputChange={handleInputChange}
+        timeInputs={timeInputs.current}
+        handleTimeInputsChange={handleTimeInputChange}
+        locationInputs={locationInputs.current}
+        handleLocationInputsChange={handleLocationInputChange}
       />
       <Chart
         planetState={planetState}
         planetNonCollision={planetNonCollision}
+        cusps={cusps}
       />
     </main>
   );

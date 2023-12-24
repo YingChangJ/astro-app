@@ -2,7 +2,7 @@
 // import { useState } from "react";
 
 // Define the functional component
-function LocationComponent({ setUserLocation, updateGeo }) {
+function LocationComponent({ updateGeo }) {
   // const [userLocation, setUserLocation] = useState(null);
 
   // Define the function that finds the user's geolocation
@@ -15,7 +15,6 @@ function LocationComponent({ setUserLocation, updateGeo }) {
           // Save the geolocation coordinates in two variables
           const { latitude, longitude } = position.coords;
           // Update the value of the userLocation variable
-          setUserLocation({ latitude, longitude });
           updateGeo({ latitude, longitude });
         },
         // If there was an error getting the user's location
