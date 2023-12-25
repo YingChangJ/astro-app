@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import React from "react";
 import "./App.css";
-import { useWorker } from "react-hooks-worker";
+// import Module from "astro.js";
 import {
   planetsPositionsList,
   parseDegree,
@@ -288,59 +288,6 @@ function App() {
   const triggerRerender = () => {
     setForceRender((prev) => !prev);
   };
-  // const handleCalculate = () => {
-  //   const message = [
-  //     parseInt(timeInputs.current.year),
-  //     parseInt(timeInputs.current.month),
-  //     parseInt(timeInputs.current.day),
-  //     parseInt(timeInputs.current.hour),
-  //     parseInt(timeInputs.current.minute),
-  //     parseInt(timeInputs.current.second),
-  //     parseInt(locationInputs.current.lonDeg),
-  //     parseInt(locationInputs.current.lonMin),
-  //     parseInt(locationInputs.current.lonSec),
-  //     "E", //sLonEW,
-  //     parseInt(locationInputs.current.latDeg),
-  //     parseInt(locationInputs.current.latMin),
-  //     parseInt(locationInputs.current.latSec),
-  //     "N", //sLatNS,
-  //     "P", //sHouse,
-  //   ];
-  //   worker.postMessage(message);
-  // };
-
-  // // useEffect for handling worker messages
-  // useEffect(() => {
-  //   const handleWorkerMessage = (event) => {
-  //     const jsonResult = JSON.parse(event.data);
-  //     setResult(jsonResult);
-  //   };
-
-  //   worker.addEventListener("message", handleWorkerMessage);
-
-  //   return () => {
-  //     worker.removeEventListener("message", handleWorkerMessage);
-  //   };
-  // }, [worker]);
-
-  // // useEffect for updating time
-  // useEffect(() => {
-  //   const updateTime = () => {
-  //     const newTime = DateTime.local();
-  //     setDateTime(newTime);
-  //     timeInputs.current = {
-  //       year: newTime.year,
-  //       month: newTime.month,
-  //       day: newTime.day,
-  //       hour: newTime.hour,
-  //       minute: newTime.month,
-  //       second: newTime.second,
-  //       offset: newTime.offset / 60,
-  //     };
-  //   };
-
-  //   updateTime(); // Call on mount
-  // }, []); // Empty dependency array ensures it runs only once
 
   //Updates funs
   const updateGeo = (newLocation) => {
@@ -377,6 +324,34 @@ function App() {
     location.longitude,
     location.latitude
   );
+
+  const calc = window.Module.ccall(
+    "get",
+    "string",
+    [
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "string",
+      "number",
+      "number",
+      "number",
+      "string",
+      "string",
+    ],
+    [dateTime.current.year, 1, 1, 0, 0, 0, 0, 0, 0, "E", 0, 0, 0, "N", "P"]
+  );
+  const parsedCalc = JSON.parse(calc);
+  console.log("ccall", JSON.parse(calc));
+  console.log("Local", DateTime.local());
+  console.log("UTC", DateTime.setZone("UTC"));
+  console.log("UTC", DateTime.setZone("UTC").utc());
 
   return (
     <main className="flex flex-col items-center">
