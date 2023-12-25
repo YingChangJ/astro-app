@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import React from "react";
 import "./App.css";
-// import Module from "astro.js";
+// import "astro.js";
 import {
   planetsPositionsList,
   parseDegree,
@@ -325,33 +325,33 @@ function App() {
     location.latitude
   );
 
-  const calc = window.Module.ccall(
-    "get",
-    "string",
-    [
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "string",
-      "number",
-      "number",
-      "number",
-      "string",
-      "string",
-    ],
-    [dateTime.current.year, 1, 1, 0, 0, 0, 0, 0, 0, "E", 0, 0, 0, "N", "P"]
-  );
-  const parsedCalc = JSON.parse(calc);
-  console.log("ccall", JSON.parse(calc));
-  console.log("Local", DateTime.local());
-  console.log("UTC", DateTime.setZone("UTC"));
-  console.log("UTC", DateTime.setZone("UTC").utc());
+  // const calc = window.Module.ccall(
+  //   "get",
+  //   "string",
+  //   [
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "string",
+  //     "number",
+  //     "number",
+  //     "number",
+  //     "string",
+  //     "string",
+  //   ],
+  //   [2000, 1, 1, 0, 0, 0, 0, 0, 0, "E", 0, 0, 0, "N", "P"]
+  // );
+  // // const parsedCalc = JSON.parse(calc);
+  // console.log("ccall", JSON.parse(calc));
+  // console.log("Local", DateTime.local());
+  // console.log("UTC", DateTime.setZone("UTC"));
+  // console.log("UTC", DateTime.setZone("UTC").utc());
 
   return (
     <main className="flex flex-col items-center">
@@ -359,7 +359,30 @@ function App() {
       <button onClick={handleHelio}>
         {helio ? "Heliocentric" : "Geocentric"}
       </button>
-
+      <div>
+        {window.Module.ccall(
+          "get",
+          "string",
+          [
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "string",
+            "number",
+            "number",
+            "number",
+            "string",
+            "string",
+          ],
+          [2000, 1, 1, 0, 0, 0, 0, 0, 0, "E", 0, 0, 0, "N", "P"]
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <GeoComp updateGeo={updateGeo} />
         <button onClick={updateTime}>Get Time</button>
@@ -375,6 +398,7 @@ function App() {
         planetNonCollision={planetNonCollision}
         cusps={cusps}
       />
+      {/* <script type="module" src="/astro.js"></script> */}
     </main>
   );
 }
