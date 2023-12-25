@@ -11,6 +11,15 @@ import Saturn from "../assets/Saturn.svg?react";
 import Uranus from "../assets/Uranus.svg?react";
 import Neptune from "../assets/Neptune.svg?react";
 import Pluto from "../assets/Pluto.svg?react";
+import MeanNode from "../assets/NorthNode.svg?react";
+import TrueNode from "../assets/NorthNodeTrue.svg?react";
+import MeanApogee from "../assets/BlackMoon.svg?react";
+import Chiron from "../assets/Chiron.svg?react";
+// import Pholus from "../assets/Pholus.svg?react";
+import Ceres from "../assets/Ceres.svg?react";
+import Pallas from "../assets/Pallas.svg?react";
+import Juno from "../assets/Juno.svg?react";
+// import Vesta from "../assets/Vesta.svg?react";
 
 function SVGFile(props) {
   switch (props.planet) {
@@ -34,6 +43,24 @@ function SVGFile(props) {
       return <Neptune {...props} />;
     case "Pluto":
       return <Pluto {...props} />;
+    case "mean Node":
+      return <MeanNode {...props} />;
+    case "true Node":
+      return <TrueNode {...props} />;
+    case "mean Apogee":
+      return <MeanApogee {...props} />;
+    case "Chiron":
+      return <Chiron {...props} />;
+    // case "Pholus":
+    //   return <Pholus {...props} />;
+    case "Ceres":
+      return <Ceres {...props} />;
+    case "Pallas":
+      return <Pallas {...props} />;
+    case "Juno":
+      return <Juno {...props} />;
+    // case "Vesta":
+    //   return <Vesta {...props} />;
     default:
       break;
   }

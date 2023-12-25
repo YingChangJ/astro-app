@@ -102,7 +102,7 @@ function Planet({
     </>
   );
 }
-function Chart({ planetState, planetNonCollision, cusps }) {
+function Chart({ planetState, cusps, wasmResult }) {
   const svgWidth = 404;
 
   const radius_out = 49;
@@ -115,7 +115,19 @@ function Chart({ planetState, planetNonCollision, cusps }) {
   const radius_planet_zodiac = radius_zodiac * 0.36 + radius_house * 0.64;
   const radius_planet_minute = radius_zodiac * 0.205 + radius_house * 0.795;
   const radius_planet_retro = radius_house * 1.1;
-
+  let cuspsUnited, planetStateUnited;
+  if (wasmResult) {
+    cuspsUnited = wasmResult.house.map((item) => item.long);
+    planetStateUnited = wasmResult.planets.reduce((result, item) => {
+      result[item.name] = { lon: item.long, speed: item.speed };
+      return result;
+    }, {});
+    console.log("Use wasm");
+  } else {
+    cuspsUnited = cusps;
+    planetStateUnited = planetState;
+    console.log("Use v");
+  }
   const short_length_pl = 0.1;
   const short_length_xtick_minor = 0.15;
   const short_length_xtick_major = 0.3;
@@ -125,7 +137,8 @@ function Chart({ planetState, planetNonCollision, cusps }) {
   const linewidth_thin = 1;
   const linewidth_light = 0.3;
   const stroke = [5, 1, 1, 1]; //stroke of circles from outside to inside
-
+  const diff = 7; //avoid planets overlapped in chart
+  const planetNonCollision = avoidCollision(planetStateUnited, diff);
   return (
     <svg
       viewBox={
@@ -140,18 +153,18 @@ function Chart({ planetState, planetNonCollision, cusps }) {
         )
       )}
       <Cusps
-        cusps={cusps}
+        cusps={cuspsUnited}
         startRadius={radius_zodiac}
         length={radius_zodiac - radius_house}
         zodiacRadius={radius_zodiac * 0.5 + radius_out * 0.5}
       />
-      {Object.keys(planetState).map((planet) => (
+      {Object.keys(planetStateUnited).map((planet) => (
         // <React.Fragment>
         <React.Fragment key={planet}>
           <Planet
             planet={planet}
-            lon={planetState[planet].lon}
-            direction={planetState[planet].direction < 0}
+            lon={planetStateUnited[planet].lon}
+            direction={planetStateUnited[planet].speed < 0}
             radius_planet={radius_planet}
             radius_planet_degree={radius_planet_degree}
             radius_planet_zodiac={radius_planet_zodiac}
@@ -159,13 +172,13 @@ function Chart({ planetState, planetNonCollision, cusps }) {
             radius_planet_retro={radius_planet_retro}
             sizeCanvas={svgWidth}
             planetNonCollision={planetNonCollision[planet]}
-            leftDegree={cusps[0]}
+            leftDegree={cuspsUnited[0]}
           />
           <Line
             startRadius={radius_zodiac}
             length={2}
-            theta={planetState[planet].lon}
-            leftDegree={cusps[0]}
+            theta={planetStateUnited[planet].lon}
+            leftDegree={cuspsUnited[0]}
           />
         </React.Fragment>
       ))}
@@ -220,7 +233,6 @@ function App() {
     "latMin",
     "latSec",
   ];
-  const diff = 7; //avoid planets overlapped in chart
 
   //Hooks
   const [helio, setHelio] = useState(false);
@@ -238,8 +250,7 @@ function App() {
   );
   //others
   const [, setForceRender] = useState(false);
-  // const worker = useWorker(new Worker("./js/sweph.js"));
-  // const [result, setResult] = useState("");
+  const isOver1800 = useRef(true);
 
   //Handle funs
   const handleHelio = () => {
@@ -261,11 +272,16 @@ function App() {
       { zone: offsetInMinutes }
     );
     if (updatedDateTime.isValid) {
-      setDateTime(
-        updatedDateTime.plus({
-          seconds: (parseFloat(timeInputs.current.hour) % 1) * 3600,
-        })
-      );
+      const takeFractionalHour = updatedDateTime.plus({
+        seconds: (parseFloat(timeInputs.current.hour) % 1) * 3600,
+      });
+      setDateTime(takeFractionalHour);
+      const yearToCheck = takeFractionalHour.toUTC().year;
+      if (yearToCheck >= 1800 && yearToCheck <= 2400) {
+        isOver1800.current = true;
+      } else {
+        isOver1800.current = false;
+      }
     } else {
       triggerRerender();
     }
@@ -318,37 +334,12 @@ function App() {
   };
 
   const planetState = planetsPositionsList(dateTime.toJSDate(), helio);
-  const planetNonCollision = avoidCollision(planetState, diff);
+
   const cusps = houses(
     dateTime.toJSDate(),
     location.longitude,
     location.latitude
   );
-
-  const calc = window.Module.ccall(
-    "get",
-    "string",
-    [
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "string",
-      "number",
-      "number",
-      "number",
-      "string",
-      "string",
-    ],
-    [2000, 1, 1, 0, 0, 0, 0, 0, 0, "E", 0, 0, 0, "N", "P"]
-  );
-  // const parsedCalc = JSON.parse(calc);
-  console.log("ccall", JSON.parse(calc));
   // console.log("Local", DateTime.local());
   // console.log("UTC", DateTime.setZone("UTC"));
   // console.log("UTC", DateTime.setZone("UTC").utc());
@@ -372,8 +363,51 @@ function App() {
       />
       <Chart
         planetState={planetState}
-        planetNonCollision={planetNonCollision}
         cusps={cusps}
+        wasmResult={
+          isOver1800.current
+            ? JSON.parse(
+                window.Module.ccall(
+                  "get",
+                  "string",
+                  [
+                    "number",
+                    "number",
+                    "number",
+                    "number",
+                    "number",
+                    "number",
+                    "number",
+                    "number",
+                    "number",
+                    "string",
+                    "number",
+                    "number",
+                    "number",
+                    "string",
+                    "string",
+                  ],
+                  [
+                    dateTime.toUTC().year,
+                    dateTime.toUTC().month,
+                    dateTime.toUTC().day,
+                    dateTime.toUTC().hour,
+                    dateTime.toUTC().minute,
+                    dateTime.toUTC().second,
+                    locationInputs.current.lonDeg,
+                    locationInputs.current.lonMin,
+                    locationInputs.current.lonSec,
+                    "E",
+                    locationInputs.current.latDeg,
+                    locationInputs.current.latMin,
+                    locationInputs.current.latSec,
+                    "N",
+                    "P",
+                  ]
+                )
+              )
+            : null
+        }
       />
       {/* <script type="module" src="/astro.js"></script> */}
     </main>

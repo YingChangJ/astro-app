@@ -20,7 +20,7 @@ export function planetsPositionsList(date, helio = false) {
     const temp = planetsPositions(planet, date, helio);
     list[planet] = {
       lon: temp.positionECTSphere.elon,
-      direction: temp.lonPerSecond,
+      speed: temp.lonPerSecond,
     };
   });
 
