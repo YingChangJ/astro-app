@@ -16,6 +16,7 @@ function LocationComponent({ updateGeo }) {
           const { latitude, longitude } = position.coords;
           // Update the value of the userLocation variable
           updateGeo({ latitude, longitude });
+          console.log({ latitude, longitude });
         },
         // If there was an error getting the user's location
         (error) => {

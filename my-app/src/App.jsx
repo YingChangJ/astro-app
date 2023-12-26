@@ -116,10 +116,13 @@ function Chart({ planetState, cusps, wasmResult }) {
   const radius_planet_minute = radius_zodiac * 0.205 + radius_house * 0.795;
   const radius_planet_retro = radius_house * 1.1;
   let cuspsUnited, planetStateUnited;
+  console.log(wasmResult);
   if (wasmResult) {
     cuspsUnited = wasmResult.house.map((item) => item.long);
     planetStateUnited = wasmResult.planets.reduce((result, item) => {
-      result[item.name] = { lon: item.long, speed: item.speed };
+      if (item.name !== "intp. Apogee" && item.name !== "intp. Perigee") {
+        result[item.name] = { lon: item.long, speed: item.speed };
+      }
       return result;
     }, {});
     console.log("Use wasm");
@@ -340,9 +343,6 @@ function App() {
     location.longitude,
     location.latitude
   );
-  // console.log("Local", DateTime.local());
-  // console.log("UTC", DateTime.setZone("UTC"));
-  // console.log("UTC", DateTime.setZone("UTC").utc());
 
   return (
     <main className="flex flex-col items-center">
@@ -379,13 +379,8 @@ function App() {
                     "number",
                     "number",
                     "number",
-                    "number",
                     "string",
                     "number",
-                    "number",
-                    "number",
-                    "string",
-                    "string",
                   ],
                   [
                     dateTime.toUTC().year,
@@ -394,15 +389,10 @@ function App() {
                     dateTime.toUTC().hour,
                     dateTime.toUTC().minute,
                     dateTime.toUTC().second,
-                    locationInputs.current.lonDeg,
-                    locationInputs.current.lonMin,
-                    locationInputs.current.lonSec,
-                    "E",
-                    locationInputs.current.latDeg,
-                    locationInputs.current.latMin,
-                    locationInputs.current.latSec,
-                    "N",
+                    location.longitude,
+                    location.latitude,
                     "P",
+                    258 | (helio ? 8 : 0),
                   ]
                 )
               )

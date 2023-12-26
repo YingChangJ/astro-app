@@ -2,7 +2,7 @@ import React from "react";
 import { Text, Line } from "./SVGComponents.jsx";
 import { parseDegree, zodiacSymbol, colorTheme } from "../utils.js";
 export function Cusps({ cusps, startRadius, length, zodiacRadius }) {
-  console.log(cusps);
+  // console.log(cusps);
   const generateLines = () => {
     const cuspsElement = [];
     for (let i = 0; i < 12; i++) {
