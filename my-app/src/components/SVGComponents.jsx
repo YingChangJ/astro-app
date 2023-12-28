@@ -19,6 +19,7 @@ import Chiron from "../assets/Chiron.svg?react";
 import Ceres from "../assets/Ceres.svg?react";
 import Pallas from "../assets/Pallas.svg?react";
 import Juno from "../assets/Juno.svg?react";
+
 // import Vesta from "../assets/Vesta.svg?react";
 
 function SVGFile(props) {
@@ -140,5 +141,19 @@ export function Line({
       y2={+endRadius * sin_value + "%"}
       stroke={color}
     />
+  );
+}
+export function Circle({ radius, stroke }) {
+  return (
+    <>
+      <circle
+        cx="0"
+        cy="0"
+        r={radius}
+        stroke="black"
+        fill="none"
+        strokeWidth={stroke}
+      ></circle>
+    </>
   );
 }

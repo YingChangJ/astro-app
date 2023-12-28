@@ -4,190 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import React from "react";
 import "./App.css";
-import {
-  planetsPositionsList,
-  parseDegree,
-  zodiacSymbol,
-  avoidCollision,
-  parseDegreeNoZodiac,
-  houses,
-  colorTheme,
-} from "./utils.js";
-import { Text, Symbols, Line } from "./components/SVGComponents.jsx";
+import { planetsPositionsList, parseDegreeNoZodiac, houses } from "./utils.js";
 import GeoComp from "./components/Geo.jsx";
-import { Cusps } from "./components/Chart-related.jsx";
 import { DateTime } from "./lib/luxon.min.js";
-function Circle({ radius, stroke }) {
-  return (
-    <>
-      <circle
-        cx="0"
-        cy="0"
-        r={radius}
-        stroke="black"
-        fill="none"
-        strokeWidth={stroke}
-      ></circle>
-    </>
-  );
-}
 
-function Planet({
-  planet,
-  lon,
-  direction,
-  radius_planet,
-  radius_planet_degree,
-  radius_planet_zodiac,
-  radius_planet_minute,
-  radius_planet_retro,
-  sizeCanvas,
-  planetNonCollision,
-  leftDegree,
-}) {
-  const resPosition = parseDegree(lon);
-  const fontsize_degree = "75%";
-  const fontsize_zodiac = "75%";
-  const fontsize_minute = "50%";
-  const fontsize_retro = "40%";
-  const element = Math.floor(resPosition.zodiac % 4);
-  const color = colorTheme(element);
-  return (
-    <>
-      <Symbols
-        symbolName={planet}
-        radius={radius_planet}
-        theta={planetNonCollision}
-        scale={0.05}
-        sizeCanves={sizeCanvas}
-        color={color}
-        leftDegree={leftDegree}
-      />
-      <Text
-        text={resPosition.degree}
-        radius={radius_planet_degree}
-        theta={planetNonCollision}
-        // color="black"
-        fontSize={fontsize_degree}
-        leftDegree={leftDegree}
-        fontWeight="bold"
-      />
-      <Text
-        text={zodiacSymbol(resPosition.zodiac)}
-        radius={radius_planet_zodiac}
-        theta={planetNonCollision}
-        color={color}
-        fontSize={fontsize_zodiac}
-        leftDegree={leftDegree}
-        // fontWeight="normal"
-      />
-      <Text
-        text={resPosition.minute}
-        radius={radius_planet_minute}
-        theta={planetNonCollision}
-        // color={color}
-        fontSize={fontsize_minute}
-        leftDegree={leftDegree}
-      />
-      {direction && (
-        <Text
-          text={"R"}
-          radius={radius_planet_retro}
-          theta={planetNonCollision}
-          color="red"
-          fontSize={fontsize_retro}
-          leftDegree={leftDegree}
-        />
-      )}
-    </>
-  );
-}
-function Chart({ planetState, cusps, wasmResult }) {
-  const svgWidth = 404;
-
-  const radius_out = 49;
-  const radius_zodiac = 42;
-  const radius_house = 20;
-  const radius_inner = 15;
-
-  const radius_planet = radius_zodiac * 0.8 + radius_house * 0.2;
-  const radius_planet_degree = radius_zodiac * 0.57 + radius_house * 0.43;
-  const radius_planet_zodiac = radius_zodiac * 0.36 + radius_house * 0.64;
-  const radius_planet_minute = radius_zodiac * 0.205 + radius_house * 0.795;
-  const radius_planet_retro = radius_house * 1.1;
-  let cuspsUnited, planetStateUnited;
-  console.log(wasmResult);
-  if (wasmResult) {
-    cuspsUnited = wasmResult.house.map((item) => item.long);
-    planetStateUnited = wasmResult.planets.reduce((result, item) => {
-      if (item.name !== "intp. Apogee" && item.name !== "intp. Perigee") {
-        result[item.name] = { lon: item.long, speed: item.speed };
-      }
-      return result;
-    }, {});
-    console.log("Use wasm");
-  } else {
-    cuspsUnited = cusps;
-    planetStateUnited = planetState;
-    console.log("Use v");
-  }
-  const short_length_pl = 0.1;
-  const short_length_xtick_minor = 0.15;
-  const short_length_xtick_major = 0.3;
-
-  const linewidth_wide = 2;
-  const linewidth_middle = 1;
-  const linewidth_thin = 1;
-  const linewidth_light = 0.3;
-  const stroke = [5, 1, 1, 1]; //stroke of circles from outside to inside
-  const diff = 7; //avoid planets overlapped in chart
-  const planetNonCollision = avoidCollision(planetStateUnited, diff);
-  return (
-    <svg
-      viewBox={
-        -svgWidth / 2 + " -" + svgWidth / 2 + " " + svgWidth + " " + svgWidth
-      }
-      xmlns="http://www.w3.org/2000/svg"
-      version="1.1"
-    >
-      {[radius_out, radius_house, radius_zodiac, radius_inner].map(
-        (r, index) => (
-          <Circle key={r} radius={r + "%"} stroke={stroke[index]} />
-        )
-      )}
-      <Cusps
-        cusps={cuspsUnited}
-        startRadius={radius_zodiac}
-        length={radius_zodiac - radius_house}
-        zodiacRadius={radius_zodiac * 0.5 + radius_out * 0.5}
-      />
-      {Object.keys(planetStateUnited).map((planet) => (
-        // <React.Fragment>
-        <React.Fragment key={planet}>
-          <Planet
-            planet={planet}
-            lon={planetStateUnited[planet].lon}
-            direction={planetStateUnited[planet].speed < 0}
-            radius_planet={radius_planet}
-            radius_planet_degree={radius_planet_degree}
-            radius_planet_zodiac={radius_planet_zodiac}
-            radius_planet_minute={radius_planet_minute}
-            radius_planet_retro={radius_planet_retro}
-            sizeCanvas={svgWidth}
-            planetNonCollision={planetNonCollision[planet]}
-            leftDegree={cuspsUnited[0]}
-          />
-          <Line
-            startRadius={radius_zodiac}
-            length={2}
-            theta={planetStateUnited[planet].lon}
-            leftDegree={cuspsUnited[0]}
-          />
-        </React.Fragment>
-      ))}
-    </svg>
-  );
-}
 function Inputs({
   timeInputs,
   locationInputs,
@@ -344,14 +164,50 @@ function App() {
     });
     triggerRerender();
   }
-
-  const planetState = planetsPositionsList(dateTime.toJSDate(), helio);
-
-  const cusps = houses(
-    dateTime.toJSDate(),
-    location.longitude,
-    location.latitude
-  );
+  let planetState,
+    cusps = undefined;
+  if (isOver1800.current) {
+    const wasm = JSON.parse(
+      window.Module.ccall(
+        "get",
+        "string",
+        [
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "string",
+          "number",
+        ],
+        [
+          dateTime.toUTC().year,
+          dateTime.toUTC().month,
+          dateTime.toUTC().day,
+          dateTime.toUTC().hour,
+          dateTime.toUTC().minute,
+          dateTime.toUTC().second,
+          location.longitude,
+          location.latitude,
+          "P",
+          258 | (helio ? 8 : 0),
+        ]
+      )
+    );
+    cusps = wasm.house.map((item) => item.long);
+    planetState = wasm.planets.reduce((result, item) => {
+      if (item.name !== "intp. Apogee" && item.name !== "intp. Perigee") {
+        result[item.name] = { lon: item.long, speed: item.speed };
+      }
+      return result;
+    }, {});
+  } else {
+    planetState = planetsPositionsList(dateTime.toJSDate(), helio);
+    cusps = houses(dateTime.toJSDate(), location.longitude, location.latitude);
+  }
 
   return (
     <main className="flex flex-col items-center">
@@ -379,45 +235,8 @@ function App() {
           handleLocationInputsChange={handleLocationInputChange}
         />
       </div>
-      <Chart
-        planetState={planetState}
-        cusps={cusps}
-        wasmResult={
-          isOver1800.current
-            ? JSON.parse(
-                window.Module.ccall(
-                  "get",
-                  "string",
-                  [
-                    "number",
-                    "number",
-                    "number",
-                    "number",
-                    "number",
-                    "number",
-                    "number",
-                    "number",
-                    "string",
-                    "number",
-                  ],
-                  [
-                    dateTime.toUTC().year,
-                    dateTime.toUTC().month,
-                    dateTime.toUTC().day,
-                    dateTime.toUTC().hour,
-                    dateTime.toUTC().minute,
-                    dateTime.toUTC().second,
-                    location.longitude,
-                    location.latitude,
-                    "P",
-                    258 | (helio ? 8 : 0),
-                  ]
-                )
-              )
-            : null
-        }
-      />
-      <Outlet />
+
+      <Outlet context={[planetState, cusps]} />
       {/* <script type="module" src="/astro.js"></script> */}
     </main>
   );

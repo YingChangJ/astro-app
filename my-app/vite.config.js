@@ -4,4 +4,8 @@ import svgr from "vite-plugin-svgr";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [svgr(), react()],
+  server: {
+    preTransformRequests: false,
+  },
+  assetsInclude: ["**/*.wasm", "**/*.data"],
 });

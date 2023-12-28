@@ -1,6 +1,8 @@
+/* eslint-disable react/prop-types */
 import React from "react";
-import { Text, Line } from "./SVGComponents.jsx";
+import { Text, Line, Symbols } from "./SVGComponents.jsx";
 import { parseDegree, zodiacSymbol, colorTheme } from "../utils.js";
+
 export function Cusps({ cusps, startRadius, length, zodiacRadius }) {
   // console.log(cusps);
   const generateLines = () => {
@@ -45,4 +47,73 @@ export function Cusps({ cusps, startRadius, length, zodiacRadius }) {
     return cuspsElement;
   };
   return generateLines();
+}
+export function Planet({
+  planet,
+  lon,
+  direction,
+  radius_planet,
+  radius_planet_degree,
+  radius_planet_zodiac,
+  radius_planet_minute,
+  radius_planet_retro,
+  sizeCanvas,
+  planetNonCollision,
+  leftDegree,
+}) {
+  const resPosition = parseDegree(lon);
+  const fontsize_degree = "75%";
+  const fontsize_zodiac = "75%";
+  const fontsize_minute = "50%";
+  const fontsize_retro = "40%";
+  const element = Math.floor(resPosition.zodiac % 4);
+  const color = colorTheme(element);
+  return (
+    <>
+      <Symbols
+        symbolName={planet}
+        radius={radius_planet}
+        theta={planetNonCollision}
+        scale={0.05}
+        sizeCanves={sizeCanvas}
+        color={color}
+        leftDegree={leftDegree}
+      />
+      <Text
+        text={resPosition.degree}
+        radius={radius_planet_degree}
+        theta={planetNonCollision}
+        // color="black"
+        fontSize={fontsize_degree}
+        leftDegree={leftDegree}
+        fontWeight="bold"
+      />
+      <Text
+        text={zodiacSymbol(resPosition.zodiac)}
+        radius={radius_planet_zodiac}
+        theta={planetNonCollision}
+        color={color}
+        fontSize={fontsize_zodiac}
+        leftDegree={leftDegree}
+      />
+      <Text
+        text={resPosition.minute}
+        radius={radius_planet_minute}
+        theta={planetNonCollision}
+        // color={color}
+        fontSize={fontsize_minute}
+        leftDegree={leftDegree}
+      />
+      {direction && (
+        <Text
+          text={"R"}
+          radius={radius_planet_retro}
+          theta={planetNonCollision}
+          color="red"
+          fontSize={fontsize_retro}
+          leftDegree={leftDegree}
+        />
+      )}
+    </>
+  );
 }

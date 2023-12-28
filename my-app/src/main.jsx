@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./routes/chart.jsx";
+import App from "./App.jsx";
 import "./index.css";
 import {
   createBrowserRouter,
@@ -12,6 +12,8 @@ import ErrorPage from "./routes/error-page.jsx";
 import Bazi from "./routes/bazi.jsx";
 import Chart from "./routes/chart.jsx";
 import Vedic from "./routes/vedic.jsx";
+import Root from "./routes/root.jsx";
+Root;
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />} errorElement={<ErrorPage />}>
