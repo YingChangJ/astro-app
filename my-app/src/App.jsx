@@ -81,13 +81,19 @@ function App() {
   }
   function handleTimeInputChange(key, value) {
     timeInputs.current = { ...timeInputs.current, [key]: value };
-    const offsetInMinutes = parseFloat(timeInputs.current.offset) * 60;
+    const offsetInMinutes = (parseFloat(timeInputs.current.offset) || 0) * 60;
     //Calculates
+    // if (isNaN(parseInt(timeInputs.current.year))) {
+    //   triggerRerender();
+    //   console.log(timeInputs.current.year);
+    //   return;
+    // }
+    console.log(timeInputs.current.year);
     const updatedDateTime = DateTime.fromObject(
       {
-        year: parseInt(timeInputs.current.year),
-        month: parseInt(timeInputs.current.month),
-        day: parseInt(timeInputs.current.day),
+        year: parseInt(timeInputs.current.year) || 2000,
+        month: parseInt(timeInputs.current.month) || 1,
+        day: parseInt(timeInputs.current.day) || 1,
         hour: parseInt(timeInputs.current.hour) || 0, // 时、分、秒等属性可以根据需要添加
         minute: parseInt(timeInputs.current.minute) || 0,
         second: parseInt(timeInputs.current.second) || 0,
@@ -96,7 +102,7 @@ function App() {
     );
     if (updatedDateTime.isValid) {
       const takeFractionalHour = updatedDateTime.plus({
-        seconds: (parseFloat(timeInputs.current.hour) % 1) * 3600,
+        seconds: ((parseFloat(timeInputs.current.hour) || 0) % 1) * 3600,
       });
       setDateTime(takeFractionalHour);
       const yearToCheck = takeFractionalHour.toUTC().year;
