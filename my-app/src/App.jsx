@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react";
+import { Link, Outlet } from "react-router-dom";
 import React from "react";
 import "./App.css";
-// import "astro.js";
 import {
   planetsPositionsList,
   parseDegree,
@@ -256,10 +256,10 @@ function App() {
   const isOver1800 = useRef(true);
 
   //Handle funs
-  const handleHelio = () => {
+  function handleHelio() {
     setHelio(!helio);
-  };
-  const handleTimeInputChange = (key, value) => {
+  }
+  function handleTimeInputChange(key, value) {
     timeInputs.current = { ...timeInputs.current, [key]: value };
     const offsetInMinutes = parseFloat(timeInputs.current.offset) * 60;
     //Calculates
@@ -288,8 +288,8 @@ function App() {
     } else {
       triggerRerender();
     }
-  };
-  const handleLocationInputChange = (key, value) => {
+  }
+  function handleLocationInputChange(key, value) {
     locationInputs.current = { ...locationInputs.current, [key]: value };
     const { lonDeg, latDeg, lonMin, latMin, lonSec, latSec } =
       locationInputs.current;
@@ -303,13 +303,13 @@ function App() {
     } else {
       triggerRerender();
     }
-  };
-  const triggerRerender = () => {
+  }
+  function triggerRerender() {
     setForceRender((prev) => !prev);
-  };
+  }
 
   //Updates funs
-  const updateGeo = (newLocation) => {
+  function updateGeo(newLocation) {
     const lat = parseDegreeNoZodiac(newLocation.latitude);
     const lon = parseDegreeNoZodiac(newLocation.longitude);
     locationInputs.current = {
@@ -321,8 +321,8 @@ function App() {
       latSec: lat.second,
     };
     setLocation(newLocation);
-  };
-  const updateTime = () => {
+  }
+  function updateTime() {
     const newTime = DateTime.local();
     setDateTime(DateTime.local());
     timeInputs.current = {
@@ -334,7 +334,16 @@ function App() {
       second: newTime.second,
       offset: newTime.offset / 60,
     };
-  };
+  }
+  function clearInputs() {
+    inputsParametersTime.forEach((key) => {
+      timeInputs.current[key] = "";
+    });
+    inputsParametersLocation.forEach((key) => {
+      locationInputs.current[key] = "";
+    });
+    triggerRerender();
+  }
 
   const planetState = planetsPositionsList(dateTime.toJSDate(), helio);
 
@@ -346,21 +355,30 @@ function App() {
 
   return (
     <main className="flex flex-col items-center">
+      <div className="flex gap-4">
+        <Link to="/">Chart</Link>
+        <Link to="vedic">Vedic</Link>
+        <Link to="bazi">Bazi</Link>
+      </div>
       <p>{dateTime.toString()}</p>
-      <button onClick={handleHelio}>
-        {helio ? "Heliocentric" : "Geocentric"}
-      </button>
-
+      <div className="grid grid-cols-2 gap-4">
+        <button onClick={handleHelio}>
+          {helio ? "Heliocentric" : "Geocentric"}
+        </button>
+        <button onClick={clearInputs}>Clear</button>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <GeoComp updateGeo={updateGeo} />
         <button onClick={updateTime}>Get Time</button>
       </div>
-      <Inputs
-        timeInputs={timeInputs.current}
-        handleTimeInputsChange={handleTimeInputChange}
-        locationInputs={locationInputs.current}
-        handleLocationInputsChange={handleLocationInputChange}
-      />
+      <div>
+        <Inputs
+          timeInputs={timeInputs.current}
+          handleTimeInputsChange={handleTimeInputChange}
+          locationInputs={locationInputs.current}
+          handleLocationInputsChange={handleLocationInputChange}
+        />
+      </div>
       <Chart
         planetState={planetState}
         cusps={cusps}
@@ -399,6 +417,7 @@ function App() {
             : null
         }
       />
+      <Outlet />
       {/* <script type="module" src="/astro.js"></script> */}
     </main>
   );
