@@ -1,19 +1,14 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useState, useRef, useEffect } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useMatches } from "react-router-dom";
 import React from "react";
 import "./App.css";
 import { planetsPositionsList, parseDegreeNoZodiac, houses } from "./utils.js";
 import GeoComp from "./components/Geo.jsx";
 import { DateTime } from "./lib/luxon.min.js";
 
-function Inputs({
-  timeInputs,
-  locationInputs,
-  handleTimeInputsChange,
-  handleLocationInputsChange,
-}) {
+function Inputs({ inputs, handleInputsChange }) {
   const renderInput = (inputs, handleChange) =>
     Object.keys(inputs).map((param) => (
       <div key={param} className="mb-2 text-center">
@@ -28,15 +23,17 @@ function Inputs({
       </div>
     ));
   return (
-    <>
-      <section className="grid grid-cols-3 gap-2">
-        {renderInput(timeInputs, handleTimeInputsChange)}
-      </section>
-      <section className="grid grid-cols-3 gap-2">
-        {renderInput(locationInputs, handleLocationInputsChange)}
-      </section>
-    </>
+    <section className="grid grid-cols-3 gap-2">
+      {renderInput(inputs, handleInputsChange)}
+    </section>
   );
+}
+function formatLocation(location) {
+  const ew = location.longitude >= 0 ? "E" : "W";
+  const ns = location.latitude >= 0 ? "N" : "S";
+  return `lon: ${Math.abs(location.longitude).toFixed(4)}${ew} lat: ${Math.abs(
+    location.latitude
+  ).toFixed(4)}${ns}`;
 }
 function App() {
   const inputsParametersTime = [
@@ -59,6 +56,7 @@ function App() {
 
   //Hooks
   const [helio, setHelio] = useState(false);
+  const [sidereal, setSidereal] = useState(false);
   //location and datetime: they are
   const [dateTime, setDateTime] = useState(DateTime.utc());
   const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
@@ -74,20 +72,18 @@ function App() {
   //others
   const [, setForceRender] = useState(false);
   const isOver1800 = useRef(true);
+  const [displayOpt, setDisplayOpt] = useState("none"); //'setting', ''timeLocation', 'none'
 
   //Handle funs
   function handleHelio() {
     setHelio(!helio);
   }
+  function handleSidereal() {
+    setSidereal(!sidereal);
+  }
   function handleTimeInputChange(key, value) {
     timeInputs.current = { ...timeInputs.current, [key]: value };
     const offsetInMinutes = (parseFloat(timeInputs.current.offset) || 0) * 60;
-    //Calculates
-    // if (isNaN(parseInt(timeInputs.current.year))) {
-    //   triggerRerender();
-    //   console.log(timeInputs.current.year);
-    //   return;
-    // }
     console.log(timeInputs.current.year);
     const updatedDateTime = DateTime.fromObject(
       {
@@ -120,15 +116,17 @@ function App() {
     const { lonDeg, latDeg, lonMin, latMin, lonSec, latSec } =
       locationInputs.current;
     const longitude =
-      parseFloat(lonDeg) + parseFloat(lonMin) / 60 + parseFloat(lonSec) / 3600;
+      (parseFloat(lonDeg) || 0) +
+      (parseFloat(lonMin) || 0) / 60 +
+      (parseFloat(lonSec) || 0) / 3600;
     const latitude =
-      parseFloat(latDeg) + parseFloat(latMin) / 60 + parseFloat(latSec) / 3600;
-
-    if (!isNaN(longitude) && !isNaN(latitude)) {
-      setLocation({ longitude, latitude });
-    } else {
-      triggerRerender();
-    }
+      (parseFloat(latDeg) || 0) +
+      (parseFloat(latMin) || 0) / 60 +
+      (parseFloat(latSec) || 0) / 3600;
+    setLocation({ longitude, latitude });
+  }
+  function handleEditTimeLocation() {
+    setDisplayOpt((prev) => (prev === "none" ? "timeLocation" : "none"));
   }
   function triggerRerender() {
     setForceRender((prev) => !prev);
@@ -170,39 +168,41 @@ function App() {
     });
     triggerRerender();
   }
+  const wasmResult = window.Module.ccall(
+    "get",
+    "string",
+    [
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "string",
+      "number",
+      "number",
+    ],
+    [
+      dateTime.toUTC().year,
+      dateTime.toUTC().month,
+      dateTime.toUTC().day,
+      dateTime.toUTC().hour,
+      dateTime.toUTC().minute,
+      dateTime.toUTC().second,
+      location.longitude,
+      location.latitude,
+      "P",
+      258 | (helio ? 8 : 0),
+      1,
+    ]
+  );
   let planetState,
     cusps = undefined;
   if (isOver1800.current) {
-    const wasm = JSON.parse(
-      window.Module.ccall(
-        "get",
-        "string",
-        [
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "string",
-          "number",
-        ],
-        [
-          dateTime.toUTC().year,
-          dateTime.toUTC().month,
-          dateTime.toUTC().day,
-          dateTime.toUTC().hour,
-          dateTime.toUTC().minute,
-          dateTime.toUTC().second,
-          location.longitude,
-          location.latitude,
-          "P",
-          258 | (helio ? 8 : 0),
-        ]
-      )
-    );
+    console.log(wasmResult);
+    const wasm = JSON.parse(wasmResult);
     cusps = wasm.house.map((item) => item.long);
     planetState = wasm.planets.reduce((result, item) => {
       if (item.name !== "intp. Apogee" && item.name !== "intp. Perigee") {
@@ -214,6 +214,9 @@ function App() {
     planetState = planetsPositionsList(dateTime.toJSDate(), helio);
     cusps = houses(dateTime.toJSDate(), location.longitude, location.latitude);
   }
+  // Use useMatch to get information about the matched route
+  const match = useMatches();
+  console.log(match[1].pathname);
 
   return (
     <main className="flex flex-col items-center">
@@ -222,24 +225,56 @@ function App() {
         <Link to="vedic">Vedic</Link>
         <Link to="bazi">Bazi</Link>
       </div>
-      <p>{dateTime.toString()}</p>
+      <div className="flex justify-between items-center space-x-4">
+        <div>
+          <p>
+            {dateTime.toLocaleString({
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              second: "numeric",
+              timeZoneName: "short",
+            })}
+          </p>
+          <p>{formatLocation(location)}</p>
+        </div>
+        <button
+          onClick={handleEditTimeLocation}
+          className="btn btn-blue"
+          style={{ height: "fit-content" }}
+        >{`${displayOpt === "none" ? "edit" : "close"}`}</button>
+      </div>
       <div className="grid grid-cols-2 gap-4">
-        <button onClick={handleHelio}>
+        <button onClick={handleHelio} className="btn btn-blue btn-head">
           {helio ? "Heliocentric" : "Geocentric"}
         </button>
-        <button onClick={clearInputs}>Clear</button>
+        <button onClick={handleSidereal} className="btn btn-blue btn-head">
+          {sidereal ? "Sidereal" : "Tropical"}
+        </button>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <GeoComp updateGeo={updateGeo} />
-        <button onClick={updateTime}>Get Time</button>
+        <button onClick={updateTime} className="btn btn-blue btn-head">
+          Get Time
+        </button>
       </div>
-      <div>
+      <div
+        style={{ display: displayOpt === "timeLocation" ? "block" : "none" }}
+      >
         <Inputs
-          timeInputs={timeInputs.current}
-          handleTimeInputsChange={handleTimeInputChange}
-          locationInputs={locationInputs.current}
-          handleLocationInputsChange={handleLocationInputChange}
+          inputs={timeInputs.current}
+          handleInputsChange={handleTimeInputChange}
         />
+        <Inputs
+          inputs={locationInputs.current}
+          handleInputsChange={handleLocationInputChange}
+        />
+        <button onClick={clearInputs} className="btn btn-blue">
+          Clear
+        </button>
       </div>
 
       <Outlet context={[planetState, cusps]} />
