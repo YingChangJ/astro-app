@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+// import { useState } from "react";
 import { degreesToRadians } from "../utils.js";
 import Form from "react-bootstrap/Form";
 // import React from "react";
@@ -167,8 +167,8 @@ export function SelectDropdown({ onSelect, options }) {
   };
 
   return (
-    <Form.Select onChange={handleSelect}>
-      <option value="">Select an Option</option>
+    <Form.Select onChange={handleSelect} style={{ maxWidth: "250px" }}>
+      {/* <option value="">Select an Option</option> */}
       {options.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}

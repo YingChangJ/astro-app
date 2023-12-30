@@ -75,13 +75,13 @@ function App() {
     "latSec",
   ];
   const sidOptions = [
-    { label: "FAGAN_BRADLEY", value: 0 },
-    { label: "LAHIRI", value: 1 },
-    { label: "TRUE_CITRA", value: 27 },
-    { label: "RAMAN", value: 3 },
-    { label: "YUKTESHWAR", value: 7 },
-    { label: "GALCENT_RGBRAND", value: 30 },
-    { label: "TRUE_PUSHYA", value: 29 },
+    { label: "Fagan/Bradley", value: 0 },
+    { label: "Lahiri", value: 1 },
+    { label: "True Citra", value: 27 },
+    { label: "Raman", value: 3 },
+    { label: "Yukteshwar", value: 7 },
+    { label: "Galactic Center (Gil Brand)", value: 30 },
+    { label: "True Pushya (PVRN Rao)", value: 29 },
   ];
 
   //Hooks
@@ -202,7 +202,9 @@ function App() {
     triggerRerender();
   }
   const iflag = 258 | (helio ? 8 : 0);
-  console.log("flag", iflag);
+  // console.log("flag", iflag);
+  // console.log("sidMode", sidMode);
+
   const wasmResult = window.Module.ccall(
     "get",
     "string",
@@ -233,21 +235,34 @@ function App() {
       iflag,
     ]
   );
+  const wasm = JSON.parse(wasmResult);
+
   let planetState,
     cusps = undefined;
   if (isOver1800.current) {
+    const paraLong = siderealOrTropical ? "long_sid" : "long";
     console.log(wasmResult);
-    const wasm = JSON.parse(wasmResult);
-    cusps = wasm.house.map((item) => item.long);
+
+    cusps = wasm.house.map((item) => item[paraLong]);
     planetState = wasm.planets.reduce((result, item) => {
       if (item.name !== "intp. Apogee" && item.name !== "intp. Perigee") {
-        result[item.name] = { lon: item.long, speed: item.speed };
+        result[item.name] = { lon: item[paraLong], speed: item.speed };
       }
       return result;
     }, {});
   } else {
+    const paraLongDiff = siderealOrTropical ? wasm.ayan : 0;
+    // console.log("ayan", paraLongDiff);
     planetState = planetsPositionsList(dateTime.toJSDate(), helio);
-    cusps = houses(dateTime.toJSDate(), location.longitude, location.latitude);
+    Object.entries(planetState).forEach(([planet]) => {
+      planetState[planet].lon =
+        (planetState[planet].lon - paraLongDiff + 360) % 360;
+    });
+    cusps = houses(
+      dateTime.toJSDate(),
+      location.longitude,
+      location.latitude
+    ).map((cuspDegree) => (cuspDegree - paraLongDiff + 360) % 360);
   }
   // Use useMatch to get information about the matched route
   const match = useMatches();
