@@ -7,33 +7,54 @@ import "./App.css";
 import { planetsPositionsList, parseDegreeNoZodiac, houses } from "./utils.js";
 import GeoComp from "./components/Geo.jsx";
 import { DateTime } from "./lib/luxon.min.js";
-
+import { DropdownMenu } from "./components/SVGComponents.jsx";
+import { Button, Stack } from "react-bootstrap";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import Accordion from "react-bootstrap/Accordion";
 function Inputs({ inputs, handleInputsChange }) {
-  const renderInput = (inputs, handleChange) =>
-    Object.keys(inputs).map((param) => (
-      <div key={param} className="mb-2 text-center">
-        <label>{param}</label>
-        <input
-          className="w-full md:w-12 lg:w-12 text-center"
-          type="number"
-          step="any"
-          value={inputs[param]}
-          onChange={(e) => handleChange(param, e.target.value)}
-        />
-      </div>
-    ));
+  const renderInputsInRows = (inputs, handleChange) => {
+    const inputRows = [];
+    let currentRow = [];
+
+    Object.keys(inputs).forEach((param, index) => {
+      currentRow.push(
+        <Col xs md={4}>
+          <Form.Label>{param}</Form.Label>
+          <Form.Control
+            className="text-center"
+            type="number"
+            step="any"
+            inputMode="numeric" // Specifies that the input should only accept numeric values
+            value={inputs[param]}
+            onChange={(e) => handleChange(param, e.target.value)}
+          />
+        </Col>
+      );
+
+      // Check if it's the third input in the row or the last input
+      if ((index + 1) % 3 === 0 || index === Object.keys(inputs).length - 1) {
+        inputRows.push(<Row key={index}>{currentRow}</Row>);
+        currentRow = [];
+      }
+    });
+
+    return inputRows;
+  };
   return (
-    <section className="grid grid-cols-3 gap-2">
-      {renderInput(inputs, handleInputsChange)}
-    </section>
+    <Container fluid>
+      {renderInputsInRows(inputs, handleInputsChange)}
+    </Container>
   );
 }
 function formatLocation(location) {
   const ew = location.longitude >= 0 ? "E" : "W";
   const ns = location.latitude >= 0 ? "N" : "S";
-  return `lon: ${Math.abs(location.longitude).toFixed(4)}${ew} lat: ${Math.abs(
-    location.latitude
-  ).toFixed(4)}${ns}`;
+  return `Longitude: ${Math.abs(location.longitude).toFixed(
+    4
+  )} ${ew} Latitude: ${Math.abs(location.latitude).toFixed(4)} ${ns}`;
 }
 function App() {
   const inputsParametersTime = [
@@ -53,10 +74,23 @@ function App() {
     "latMin",
     "latSec",
   ];
+  const sidOptions = [
+    { label: "FAGAN_BRADLEY", value: 0 },
+    { label: "LAHIRI", value: 1 },
+    { label: "TRUE_CITRA", value: 27 },
+
+    { label: "RAMAN", value: 3 },
+    { label: "YUKTESHWAR", value: 7 },
+    { label: "GALCENT_RGBRAND", value: 30 },
+
+    { label: "TRUE_PUSHYA", value: 29 },
+  ];
 
   //Hooks
   const [helio, setHelio] = useState(false);
   const [sidereal, setSidereal] = useState(false);
+  //settings
+  const [sidMode, setSidMode] = useState(1);
   //location and datetime: they are
   const [dateTime, setDateTime] = useState(DateTime.utc());
   const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
@@ -76,10 +110,13 @@ function App() {
 
   //Handle funs
   function handleHelio() {
-    setHelio(!helio);
+    setHelio((prev) => !prev);
   }
   function handleSidereal() {
-    setSidereal(!sidereal);
+    setSidereal((prev) => !prev);
+  }
+  function handleSidMode(sidNumber) {
+    setSidMode(sidNumber);
   }
   function handleTimeInputChange(key, value) {
     timeInputs.current = { ...timeInputs.current, [key]: value };
@@ -125,9 +162,7 @@ function App() {
       (parseFloat(latSec) || 0) / 3600;
     setLocation({ longitude, latitude });
   }
-  function handleEditTimeLocation() {
-    setDisplayOpt((prev) => (prev === "none" ? "timeLocation" : "none"));
-  }
+
   function triggerRerender() {
     setForceRender((prev) => !prev);
   }
@@ -168,6 +203,8 @@ function App() {
     });
     triggerRerender();
   }
+  const iflag = 258 | (helio ? 8 : 0);
+  console.log("flag", iflag);
   const wasmResult = window.Module.ccall(
     "get",
     "string",
@@ -180,8 +217,8 @@ function App() {
       "number",
       "number",
       "number",
-      "string",
       "number",
+      "string",
       "number",
     ],
     [
@@ -191,11 +228,11 @@ function App() {
       dateTime.toUTC().hour,
       dateTime.toUTC().minute,
       dateTime.toUTC().second,
+      sidMode,
       location.longitude,
       location.latitude,
       "P",
-      258 | (helio ? 8 : 0),
-      1,
+      iflag,
     ]
   );
   let planetState,
@@ -219,67 +256,72 @@ function App() {
   console.log(match[1].pathname);
 
   return (
-    <main className="flex flex-col items-center">
-      <div className="flex gap-4">
-        <Link to="/">Chart</Link>
-        <Link to="vedic">Vedic</Link>
-        <Link to="bazi">Bazi</Link>
-      </div>
-      <div className="flex justify-between items-center space-x-4">
-        <div>
-          <p>
-            {dateTime.toLocaleString({
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "numeric",
-              minute: "numeric",
-              second: "numeric",
-              timeZoneName: "short",
-            })}
-          </p>
-          <p>{formatLocation(location)}</p>
-        </div>
-        <button
-          onClick={handleEditTimeLocation}
-          className="btn btn-blue"
-          style={{ height: "fit-content" }}
-        >{`${displayOpt === "none" ? "edit" : "close"}`}</button>
-      </div>
+    <Container className="d-flex flex-column align-items-center">
+      <Col className="d-flex">
+        <Link to="/" className="mx-3">
+          Chart
+        </Link>
+        <Link to="vedic" className="mx-3">
+          Vedic
+        </Link>
+        <Link to="bazi" className="mx-3">
+          Bazi
+        </Link>
+      </Col>
+      <Accordion>
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>
+            <Row className="md-4">
+              <div>
+                {dateTime.toLocaleString({
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  second: "numeric",
+                  timeZoneName: "short",
+                })}
+              </div>
+              <div>{formatLocation(location)}</div>
+            </Row>
+          </Accordion.Header>
+          <Accordion.Body>
+            <div>
+              <Inputs
+                inputs={timeInputs.current}
+                handleInputsChange={handleTimeInputChange}
+              />
+              <Inputs
+                inputs={locationInputs.current}
+                handleInputsChange={handleLocationInputChange}
+              />
+              <button onClick={clearInputs} className="btn btn-blue">
+                Clear
+              </button>
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
       <div className="grid grid-cols-2 gap-4">
-        <button onClick={handleHelio} className="btn btn-blue btn-head">
+        <Button onClick={handleHelio} style={{ width: "155px" }}>
           {helio ? "Heliocentric" : "Geocentric"}
-        </button>
-        <button onClick={handleSidereal} className="btn btn-blue btn-head">
+        </Button>
+        <Button onClick={handleSidereal} style={{ width: "155px" }}>
           {sidereal ? "Sidereal" : "Tropical"}
-        </button>
+        </Button>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <GeoComp updateGeo={updateGeo} />
-        <button onClick={updateTime} className="btn btn-blue btn-head">
+        <Button onClick={updateTime} style={{ width: "155px" }}>
           Get Time
-        </button>
+        </Button>
       </div>
-      <div
-        style={{ display: displayOpt === "timeLocation" ? "block" : "none" }}
-      >
-        <Inputs
-          inputs={timeInputs.current}
-          handleInputsChange={handleTimeInputChange}
-        />
-        <Inputs
-          inputs={locationInputs.current}
-          handleInputsChange={handleLocationInputChange}
-        />
-        <button onClick={clearInputs} className="btn btn-blue">
-          Clear
-        </button>
-      </div>
-
+      <DropdownMenu options={sidOptions} onSelect={handleSidMode} />
       <Outlet context={[planetState, cusps]} />
       {/* <script type="module" src="/astro.js"></script> */}
-    </main>
+    </Container>
   );
 }
 

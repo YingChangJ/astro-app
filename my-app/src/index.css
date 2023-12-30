@@ -1,4 +1,4 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
 @tailwind utilities;
 :root {
@@ -52,7 +52,7 @@ h1 {
 button:hover {
   border-color: #646cff;
 } */
-.btn {
+/* .btn {
   @apply font-bold p-1 m-2 rounded;
 }
 .btn-blue {
@@ -63,13 +63,13 @@ button:hover {
 }
 .btn-head {
   @apply w-40;
-}
+} */
 /* button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 } */
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -80,4 +80,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */

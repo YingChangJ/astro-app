@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 // import { useState } from "react";
-
+import Button from "react-bootstrap/Button";
 // Define the functional component
 function LocationComponent({ updateGeo }) {
   // const [userLocation, setUserLocation] = useState(null);
@@ -34,9 +34,9 @@ function LocationComponent({ updateGeo }) {
   return (
     <>
       {/* Create a button that is mapped to the function which retrieves the user's location */}
-      <button onClick={getUserLocation} className="btn btn-blue btn-head">
+      <Button onClick={getUserLocation} style={{ width: "155px" }}>
         Get Location
-      </button>
+      </Button>
     </>
   );
 }

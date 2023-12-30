@@ -12,8 +12,9 @@ import ErrorPage from "./routes/error-page.jsx";
 import Bazi from "./routes/bazi.jsx";
 import Chart from "./routes/chart.jsx";
 import Vedic from "./routes/vedic.jsx";
-import Root from "./routes/root.jsx";
-Root;
+// import Root from "./routes/root.jsx";
+import "bootstrap/dist/css/bootstrap.min.css";
+// Root;
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />} errorElement={<ErrorPage />}>
