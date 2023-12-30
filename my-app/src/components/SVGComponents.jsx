@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { degreesToRadians } from "../utils.js";
+import Form from "react-bootstrap/Form";
 // import React from "react";
 import Sun from "../assets/Sun.svg?react";
 import Moon from "../assets/Moon.svg?react";
@@ -158,34 +159,21 @@ export function Circle({ radius, stroke }) {
     </>
   );
 }
-export function DropdownMenu({ options, onSelect }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
 
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleSelect = (option) => {
-    setSelectedOption(option);
-    onSelect(option);
-    setIsOpen(false);
+export function SelectDropdown({ onSelect, options }) {
+  const handleSelect = (event) => {
+    const selectedValue = event.target.value;
+    onSelect(selectedValue); // Pass the selected value to the parent component
   };
 
   return (
-    <div className="dropdown">
-      <button className="dropdown-button" onClick={handleToggle}>
-        {selectedOption ? selectedOption.label : "Select an option"}
-      </button>
-      {isOpen && (
-        <ul className="dropdown-menu">
-          {options.map((option) => (
-            <li key={option.value} onClick={() => handleSelect(option)}>
-              {option.label}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <Form.Select onChange={handleSelect}>
+      <option value="">Select an Option</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </Form.Select>
   );
 }

@@ -7,7 +7,7 @@ import "./App.css";
 import { planetsPositionsList, parseDegreeNoZodiac, houses } from "./utils.js";
 import GeoComp from "./components/Geo.jsx";
 import { DateTime } from "./lib/luxon.min.js";
-import { DropdownMenu } from "./components/SVGComponents.jsx";
+import { SelectDropdown } from "./components/SVGComponents.jsx";
 import { Button, Stack } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -78,19 +78,18 @@ function App() {
     { label: "FAGAN_BRADLEY", value: 0 },
     { label: "LAHIRI", value: 1 },
     { label: "TRUE_CITRA", value: 27 },
-
     { label: "RAMAN", value: 3 },
     { label: "YUKTESHWAR", value: 7 },
     { label: "GALCENT_RGBRAND", value: 30 },
-
     { label: "TRUE_PUSHYA", value: 29 },
   ];
 
   //Hooks
   const [helio, setHelio] = useState(false);
-  const [sidereal, setSidereal] = useState(false);
+  const [siderealOrTropical, setSiderealOrTropical] = useState(false); //false: tropical, true: sidereal
   //settings
-  const [sidMode, setSidMode] = useState(1);
+  const [sidMode, setSidMode] = useState(1); //swe_set_sid_mode
+  const [house, setHouse] = useState(1);
   //location and datetime: they are
   const [dateTime, setDateTime] = useState(DateTime.utc());
   const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
@@ -106,18 +105,17 @@ function App() {
   //others
   const [, setForceRender] = useState(false);
   const isOver1800 = useRef(true);
-  const [displayOpt, setDisplayOpt] = useState("none"); //'setting', ''timeLocation', 'none'
 
   //Handle funs
   function handleHelio() {
     setHelio((prev) => !prev);
   }
   function handleSidereal() {
-    setSidereal((prev) => !prev);
+    setSiderealOrTropical((prev) => !prev);
   }
-  function handleSidMode(sidNumber) {
-    setSidMode(sidNumber);
-  }
+  // function handleSidMode(sidNumber) {
+  //   setSidMode(sidNumber);
+  // }
   function handleTimeInputChange(key, value) {
     timeInputs.current = { ...timeInputs.current, [key]: value };
     const offsetInMinutes = (parseFloat(timeInputs.current.offset) || 0) * 60;
@@ -304,12 +302,13 @@ function App() {
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
+      <div></div>
       <div className="grid grid-cols-2 gap-4">
         <Button onClick={handleHelio} style={{ width: "155px" }}>
           {helio ? "Heliocentric" : "Geocentric"}
         </Button>
         <Button onClick={handleSidereal} style={{ width: "155px" }}>
-          {sidereal ? "Sidereal" : "Tropical"}
+          {siderealOrTropical ? "Sidereal" : "Tropical"}
         </Button>
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -318,7 +317,7 @@ function App() {
           Get Time
         </Button>
       </div>
-      <DropdownMenu options={sidOptions} onSelect={handleSidMode} />
+      <SelectDropdown onSelect={setSidMode} options={sidOptions} />
       <Outlet context={[planetState, cusps]} />
       {/* <script type="module" src="/astro.js"></script> */}
     </Container>
