@@ -35,6 +35,8 @@ function LocationComponent({ updateGeo }) {
     <>
       {/* Create a button that is mapped to the function which retrieves the user's location */}
       <Button
+        size="sm"
+        className="mb-2"
         onClick={(e) => {
           e.stopPropagation(); // Stop the event from propagating
           getUserLocation();

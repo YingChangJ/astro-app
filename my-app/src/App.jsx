@@ -4,10 +4,14 @@ import { useState, useRef, useMemo } from "react";
 import { Link, Outlet, useMatches } from "react-router-dom";
 import React from "react";
 import "./App.css";
-import { parseDegreeNoZodiac } from "./utils.js";
+import { parseDegreeNoZodiac, distance } from "./utils.js";
 import GeoComp from "./components/Geo.jsx";
 import { DateTime } from "./lib/luxon.min.js";
-import { SelectDropdown } from "./components/SVGComponents.jsx";
+import {
+  SelectDropdown,
+  CheckTrueOrMean,
+  CheckboxGroup,
+} from "./components/SVGComponents.jsx";
 import { Button, Stack } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -52,9 +56,9 @@ function Inputs({ inputs, handleInputsChange }) {
 function formatLocation(location) {
   const ew = location.longitude >= 0 ? "E" : "W";
   const ns = location.latitude >= 0 ? "N" : "S";
-  return `Longitude: ${Math.abs(location.longitude).toFixed(
-    4
-  )} ${ew} Latitude: ${Math.abs(location.latitude).toFixed(4)} ${ns}`;
+  return `${Math.abs(location.longitude).toFixed(4)} ${ew} ${Math.abs(
+    location.latitude
+  ).toFixed(4)} ${ns}`;
 }
 function App() {
   const inputsParametersTime = [
@@ -100,8 +104,33 @@ function App() {
   const [sidMode, setSidMode] = useState(1); //swe_set_sid_mode
   const [house, setHouse] = useState("P"); //swe_house_ex
   const [nodeType, setNodeType] = useState("mean"); //"mean", "true"
-  const [lilithType, setlilithType] = useState("mean"); //"mean", "true"
-
+  const [lilithType, setLilithType] = useState("mean"); //"mean", "true"
+  const [shownPlanets, setShownPlanets] = useState({
+    // Sun: true,
+    // Moon: true,
+    // Mercury: true,
+    // Venus: true,
+    // Mars: true,
+    // Jupiter: true,
+    // Saturn: true,
+    // Uranus: true,
+    // Neptune: true,
+    // Pluto: true,
+    Ceres: false,
+    Pallas: false,
+    Juno: false,
+    Vesta: false,
+    Chiron: true,
+    Pholus: false,
+    Node: true,
+    Lilith: true,
+    // Asc: true,
+    // MC: true,
+    Vertex: false,
+    "East P.": false,
+    "Ft. P.": true,
+    "Sp. P.": false,
+  });
   //location and datetime: they are
   const [dateTime, setDateTime] = useState(DateTime.utc());
   const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
@@ -128,7 +157,7 @@ function App() {
   function handleTimeInputChange(key, value) {
     timeInputs.current = { ...timeInputs.current, [key]: value };
     const offsetInMinutes = (parseFloat(timeInputs.current.offset) || 0) * 60;
-    console.log(timeInputs.current.year);
+
     const updatedDateTime = DateTime.fromObject(
       {
         year: parseInt(timeInputs.current.year) || 2000,
@@ -140,25 +169,18 @@ function App() {
       },
       { zone: offsetInMinutes }
     );
-    console.log("year", timeInputs.current.year, updatedDateTime);
+
     if (updatedDateTime.isValid) {
       const takeFractionalHour = updatedDateTime.plus({
         seconds: ((parseFloat(timeInputs.current.hour) || 0) % 1) * 3600,
       });
       setDateTime(takeFractionalHour);
-      console.log(
-        "after sec added",
-        ((parseFloat(timeInputs.current.hour) || 0) % 1) * 3600,
-        takeFractionalHour
-      );
       const yearToCheck = takeFractionalHour.toUTC().year;
-      if (yearToCheck >= 1800 && yearToCheck <= 2400) {
+      if (yearToCheck >= 1200 && yearToCheck <= 2400) {
         isOver1800.current = true;
       } else {
         isOver1800.current = false;
       }
-    } else {
-      triggerRerender();
     }
   }
   function handleLocationInputChange(key, value) {
@@ -175,7 +197,10 @@ function App() {
       (parseFloat(latSec) || 0) / 3600;
     setLocation({ longitude, latitude });
   }
-
+  function handleShownPlanets(key) {
+    setShownPlanets((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+  console.log(shownPlanets);
   function triggerRerender() {
     setForceRender((prev) => !prev);
   }
@@ -260,45 +285,96 @@ function App() {
     );
   }, [house, helio, dateTime, location, sidMode]);
 
-  console.log("house", house);
   const paramLon = siderealOrTropical ? "lon_sid" : "lon";
   console.log(wasm);
   const cusps = Object.values(wasm.house).map((item) => item[paramLon]);
-  const planetState = wasm.planets;
-  Object.entries(planetState).forEach(([key, value]) => {
+  const planetState = {};
+  function planetFromWasm(key) {
     planetState[key] = {
-      lon: value[paramLon],
-      speed: value["speed"],
+      lon: wasm.planets[key][paramLon],
+      speed: wasm.planets[key]["speed"],
     };
-  });
-  if (house === "W" || house === "E") {
-    planetState["MC"] = { lon: wasm.ascmc["MC"][paramLon], speed: 1024 };
   }
-  console.log(wasm.ascmc[0], paramLon);
+  [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+  ].forEach((planet) => {
+    planetFromWasm(planet);
+  });
+  ["Ceres", "Pallas", "Juno", "Vesta", "Chiron", "Pholus"].forEach((planet) => {
+    if (shownPlanets[planet]) {
+      planetFromWasm(planet);
+    }
+  });
+  if (shownPlanets.Node) {
+    planetFromWasm(nodeType + " Node");
+  }
+  console.log("shownPlanets.Lilith", shownPlanets.Lilith);
+  if (shownPlanets.Lilith) {
+    const nameLilith = lilithType === "mean" ? "mean Apogee" : "osc. Apogee";
+    planetFromWasm(nameLilith);
+  }
+
+  if (house === "W" || house === "E") {
+    planetState["Mc"] = { lon: wasm.ascmc["MC"][paramLon], speed: 1024 };
+  }
+
   if (house === "W") {
     planetState["Asc"] = { lon: wasm.ascmc["Asc"][paramLon], speed: 1024 };
   }
+  if (shownPlanets["East P."]) {
+    planetState["EP"] = { lon: wasm.ascmc["EP"][paramLon], speed: 1024 };
+  }
+  if (shownPlanets["Vertex"]) {
+    planetState["Vtx"] = { lon: wasm.ascmc["Vtx"][paramLon], speed: 1024 };
+  }
+  const distanceASCToSun = distance(
+    wasm.ascmc["Asc"][paramLon],
+    wasm.planets["Sun"][paramLon]
+  );
+  const dayOrNight = distanceASCToSun >= 0 && distanceASCToSun < 180;
+  const distanceMoonToSun = distance(
+    wasm.planets["Moon"][paramLon],
+    wasm.planets["Sun"][paramLon]
+  );
+  if (shownPlanets["Ft. P."]) {
+    planetState["Ft. P."] = {
+      lon:
+        (wasm.ascmc["Asc"][paramLon] +
+          (dayOrNight ? distanceMoonToSun : -distanceMoonToSun) +
+          360) %
+        360,
+      speed: 1024,
+    };
+  }
+  console.log(
+    wasm.ascmc["Asc"][paramLon],
+    dayOrNight ? distanceMoonToSun : -distanceMoonToSun
+  );
 
-  planetState["EP"] = { lon: wasm.ascmc["EP"][paramLon], speed: 1024 };
-  planetState["Vtx"] = { lon: wasm.ascmc["Vtx"][paramLon], speed: 1024 };
+  if (shownPlanets["Sp. P."]) {
+    planetState["Sp. P."] = {
+      lon:
+        (wasm.ascmc["Asc"][paramLon] +
+          (dayOrNight ? -distanceMoonToSun : distanceMoonToSun) +
+          360) %
+        360,
+      speed: 1024,
+    };
+  }
+  // console.log("hey!", planetState["Sp. P."].lon, planetState["Ft. P."].lon);
   // Use useMatch to get information about the matched route
   // const match = useMatches();
   // console.log(match[1].pathname);
-  console.log(
-    dateTime.toLocaleString({
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      timeZoneName: "short",
-    }),
-    formatLocation(location),
-    house,
-    sidMode
-  );
+  console.log("state", planetState);
   return (
     <Container className="d-flex flex-column align-items-center">
       <Col className="d-flex mb-2">
@@ -315,24 +391,35 @@ function App() {
       <Accordion className="mb-2">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
-            <Stack direction="horizontal" gap={2} className="w-100">
+            <Stack direction="horizontal" className="w-100">
               <Row>
-                <Col>{dateTime.toFormat("EEEE, yyyy-MM-dd HH:mm:ss Z")}</Col>
-                <Col> Julian Date(ut): {wasm.initDate.jd_ut}</Col>
-                <Col>{formatLocation(location)}</Col>
+                <Col>{dateTime.toFormat("EEE, yyyy, LLL dd HH:mm:ss ZZ")}</Col>
+                <Col>
+                  <div className="d-none d-md-inline">Julian Date(ut): </div>
+                  {wasm.initDate.jd_ut.toFixed(4)}
+                </Col>
+                <Col>
+                  <div className="d-none d-md-flex">Lon/Lat: </div>
+                  {formatLocation(location)}
+                </Col>
               </Row>
-              <Stack direction="horizontal" gap={2} className="ms-auto me-2">
-                <GeoComp updateGeo={updateGeo} />
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Stop the event from propagating
-                    updateTime();
-                  }}
-                  style={{ width: "155px" }}
-                >
-                  Get Time
-                </Button>
-              </Stack>
+              <Row className="ms-auto">
+                <Col>
+                  <GeoComp updateGeo={updateGeo} />
+                </Col>
+                <Col>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Stop the event from propagating
+                      updateTime();
+                    }}
+                    style={{ width: "155px" }}
+                  >
+                    Get Time
+                  </Button>
+                </Col>
+              </Row>
             </Stack>
           </Accordion.Header>
           <Accordion.Body>
@@ -345,7 +432,7 @@ function App() {
                 inputs={locationInputs.current}
                 handleInputsChange={handleLocationInputChange}
               />
-              <Button onClick={clearInputs} className="mt-2">
+              <Button size="sm" onClick={clearInputs} className="mt-2">
                 Clear
               </Button>
             </div>
@@ -355,42 +442,74 @@ function App() {
           <Accordion.Header>
             <Stack direction="horizontal" className="w-100">
               <Row xs="auto">
-                <Col>Sidereal Mode: {sidOptions[sidMode]}</Col>
-                <Col>House: {houseOptions[house]}</Col>
+                <Col>
+                  <div className="d-none d-md-inline">Sidereal Mode: </div>
+                  {sidOptions[sidMode]}
+                </Col>
+                <Col>
+                  <div className="d-none d-md-inline">House: </div>
+                  {houseOptions[house]}
+                </Col>
               </Row>
-              <Stack direction="horizontal" gap={2} className="ms-auto me-2">
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Stop the event from propagating
-                    handleHelio();
-                  }}
-                  style={{ width: "155px" }}
-                >
-                  {helio ? "Heliocentric" : "Geocentric"}
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Stop the event from propagating
-                    handleSidereal();
-                  }}
-                  style={{ width: "155px" }}
-                >
-                  {siderealOrTropical ? "Sidereal" : "Tropical"}
-                </Button>
-              </Stack>
+              <Row className="ms-auto me-2">
+                <Col>
+                  <Button
+                    size="sm"
+                    className="mb-2"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Stop the event from propagating
+                      handleHelio();
+                    }}
+                    style={{ width: "155px" }}
+                  >
+                    {helio ? "Heliocentric" : "Geocentric"}
+                  </Button>
+                </Col>
+                <Col>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Stop the event from propagating
+                      handleSidereal();
+                    }}
+                    style={{ width: "155px" }}
+                  >
+                    {siderealOrTropical ? "Sidereal" : "Tropical"}
+                  </Button>
+                </Col>
+              </Row>
             </Stack>
           </Accordion.Header>
-          <Accordion.Body>
-            <Stack direction="horizontal" gap={3} className="mx-auto">
-              <SelectDropdown onSelect={setSidMode} options={sidOptions} />
-              <SelectDropdown onSelect={setHouse} options={houseOptions} />
-            </Stack>
+          <Accordion.Body as={Container}>
+            <Row className="mb-3 text-start me-auto">
+              <Col>
+                <Row>
+                  <SelectDropdown onSelect={setSidMode} options={sidOptions} />
+                </Row>
+                <Row>
+                  <SelectDropdown onSelect={setHouse} options={houseOptions} />
+                </Row>
+              </Col>
+              <Col>
+                <Row className="fw-bold">Node:</Row>
+                <CheckTrueOrMean option={nodeType} onToggle={setNodeType} />
+              </Col>
+              <Col>
+                <Row className="fw-bold">Lilith:</Row>
+                <CheckTrueOrMean option={lilithType} onToggle={setLilithType} />
+              </Col>
+            </Row>
+
+            <Col>
+              <CheckboxGroup
+                options={shownPlanets}
+                onToggle={handleShownPlanets}
+              />
+            </Col>
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
-
       <Outlet context={[planetState, cusps]} />
-      {/* <script type="module" src="/astro.js"></script> */}
     </Container>
   );
 }

@@ -4,7 +4,8 @@ import { Text, Line, Symbols } from "./SVGComponents.jsx";
 import { parseDegree, zodiacSymbol, colorTheme } from "../utils.js";
 
 export function Cusps({ cusps, startRadius, length, zodiacRadius }) {
-  // console.log(cusps);
+  const strokeWidth_ASCMC = "4px";
+  const strokeWidth_notASCMC = "1px";
   const generateLines = () => {
     const cuspsElement = [];
     for (let i = 0; i < 12; i++) {
@@ -16,6 +17,7 @@ export function Cusps({ cusps, startRadius, length, zodiacRadius }) {
             length={length}
             theta={cusps[i]}
             leftDegree={cusps[0]}
+            strokeWidth={i % 3 === 0 ? strokeWidth_ASCMC : strokeWidth_notASCMC}
           />
           <Text
             text={cuspPosition.degree}
@@ -63,24 +65,31 @@ export function Planet({
 }) {
   const resPosition = parseDegree(lon);
   const fontsize_degree = "75%";
-  const fontsize_ASCMC = "70%";
+  const fontsize_ASCMC = "65%";
   const fontsize_zodiac = "75%";
   const fontsize_minute = "50%";
   const fontsize_retro = "40%";
   const element = Math.floor(resPosition.zodiac % 4);
   const color = colorTheme(element);
-  console.log("planet", planet, ["Asc", "Vtx", "MC", "EP"].includes(planet));
+  const textPlanet = {
+    Asc: "Asc",
+    Vtx: "Vx",
+    MC: "MC",
+    EP: "EP",
+    "Ft. P.": "⊗",
+    "Sp. P.": "SP",
+  };
   return (
     <>
-      {["Asc", "Vtx", "MC", "EP"].includes(planet) ? (
+      {Object.keys(textPlanet).includes(planet) ? (
         <Text
-          text={planet}
+          text={textPlanet[planet]}
           radius={radius_planet}
           theta={planetNonCollision}
           color={color}
           fontSize={fontsize_ASCMC}
           leftDegree={leftDegree}
-          fontWeight="normal"
+          fontWeight="bold"
         />
       ) : (
         <Symbols
@@ -120,7 +129,7 @@ export function Planet({
       />
       {direction && (
         <Text
-          text={"R"}
+          text={"℞"}
           radius={radius_planet_retro}
           theta={planetNonCollision}
           color="red"

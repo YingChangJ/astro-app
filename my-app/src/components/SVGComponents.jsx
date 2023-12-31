@@ -150,6 +150,7 @@ export function Line({
   theta,
   leftDegree = 0,
   color = "black",
+  strokeWidth = "1px",
 }) {
   const cos_value = Math.cos(degreesToRadians(theta - leftDegree));
   const sin_value = Math.sin(degreesToRadians(theta - leftDegree));
@@ -161,6 +162,7 @@ export function Line({
       x2={-endRadius * cos_value + "%"}
       y2={+endRadius * sin_value + "%"}
       stroke={color}
+      strokeWidth={strokeWidth}
     />
   );
 }
@@ -197,5 +199,44 @@ export function SelectDropdown({ onSelect, options }) {
         </option>
       ))}
     </Form.Select>
+  );
+}
+
+export function CheckTrueOrMean({ option, onToggle }) {
+  return (
+    <Form>
+      <Form.Check
+        label="True"
+        type="radio"
+        value="true"
+        checked={option === "true"}
+        onChange={() => onToggle("true")}
+      />
+      <Form.Check
+        label="Mean"
+        type="radio"
+        value="mean"
+        checked={option === "mean"}
+        onChange={() => onToggle("mean")}
+      />
+    </Form>
+  );
+}
+export function CheckboxGroup({ options, onToggle }) {
+  return (
+    <>
+      {Object.entries(options).map(([option, value]) => (
+        <Form.Check
+          inline
+          key={option}
+          label={option}
+          checked={value}
+          onChange={(e) => {
+            e.stopPropagation();
+            onToggle(option);
+          }}
+        />
+      ))}
+    </>
   );
 }

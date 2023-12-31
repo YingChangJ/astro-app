@@ -28,7 +28,6 @@ export default function Chart() {
   const stroke = [5, 1, 1, 1]; //stroke of circles from outside to inside
   const diff = 7; //avoid planets overlapped in chart
   const planetNonCollision = avoidCollision(planetState, diff);
-  console.log("cusps", cusps);
   return (
     <svg
       viewBox={
@@ -62,13 +61,13 @@ export default function Chart() {
             radius_planet_retro={radius_planet_retro}
             sizeCanvas={svgWidth}
             planetNonCollision={planetNonCollision[planet]}
-            leftDegree={cusps[1]}
+            leftDegree={cusps[0]}
           />
           <Line
             startRadius={radius_zodiac}
             length={2}
             theta={planetState[planet].lon}
-            leftDegree={cusps[1]}
+            leftDegree={cusps[0]}
           />
         </React.Fragment>
       ))}
