@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Link, Outlet, useMatches } from "react-router-dom";
 import React from "react";
 import "./App.css";
-import { planetsPositionsList, parseDegreeNoZodiac, houses } from "./utils.js";
+import { parseDegreeNoZodiac } from "./utils.js";
 import GeoComp from "./components/Geo.jsx";
 import { DateTime } from "./lib/luxon.min.js";
 import { SelectDropdown } from "./components/SVGComponents.jsx";
@@ -216,83 +216,71 @@ function App() {
     });
     triggerRerender();
   }
-  const iflag = 258 | (helio ? 8 : 0);
+  // const iflag = 258 | (helio ? 8 : 0);
   // console.log("flag", iflag);
   // console.log("sidMode", sidMode);
-  if (dateTime.toUTC().year >= 3000 && dateTime.toUTC().year <= -2000) {
-    return;
-  }
-  const wasmResult = window.Module.ccall(
-    "get",
-    "string",
-    [
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "number",
-      "string",
-      "number",
-    ],
-    [
-      dateTime.toUTC().year,
-      dateTime.toUTC().month,
-      dateTime.toUTC().day,
-      dateTime.toUTC().hour,
-      dateTime.toUTC().minute,
-      dateTime.toUTC().second,
-      sidMode,
-      location.longitude,
-      location.latitude,
-      house,
-      iflag,
-    ]
-  );
-  console.log("house", house);
-  const wasm = JSON.parse(wasmResult);
-  const paramLong = siderealOrTropical ? "long_sid" : "long";
-  let planetState,
-    cusps = undefined;
-  if (isOver1800.current) {
-    console.log(wasmResult);
+  const wasm = useMemo(() => {
+    // Check the condition
+    if (dateTime.toUTC().year > 3000 || dateTime.toUTC().year < -3000) {
+      // If the condition is met, return the current value without re-computation
+      return wasm;
+    }
+    // Perform the computation using wasm
+    return JSON.parse(
+      window.Module.ccall(
+        "get",
+        "string",
+        [
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "number",
+          "string",
+          "number",
+        ],
+        [
+          dateTime.toUTC().year,
+          dateTime.toUTC().month,
+          dateTime.toUTC().day,
+          dateTime.toUTC().hour,
+          dateTime.toUTC().minute,
+          dateTime.toUTC().second,
+          sidMode,
+          location.longitude,
+          location.latitude,
+          house,
+          258 | (helio ? 8 : 0),
+        ]
+      )
+    );
+  }, [house, helio, dateTime, location, sidMode]);
 
-    cusps = wasm.house.map((item) => item[paramLong]);
-    planetState = wasm.planets.reduce((result, item) => {
-      if (
-        item.name !== "intp. Apogee" &&
-        item.name !== "intp. Perigee" &&
-        item.name !== "osc. Apogee"
-      ) {
-        result[item.name] = { lon: item[paramLong], speed: item.speed };
-      }
-      return result;
-    }, {});
-  } else {
-    const paraLongDiff = siderealOrTropical ? wasm.ayan : 0;
-    // console.log("ayan", paraLongDiff);
-    //{Sun:{lon:1,speed:2},Moon:{lon:2,speed:3},...}
-    planetState = planetsPositionsList(dateTime.toJSDate(), helio);
-    Object.entries(planetState).forEach(([planet]) => {
-      planetState[planet].lon =
-        (planetState[planet].lon - paraLongDiff + 360) % 360;
-    });
-    cusps = houses(
-      dateTime.toJSDate(),
-      location.longitude,
-      location.latitude
-    ).map((cuspDegree) => (cuspDegree - paraLongDiff + 360) % 360);
-  }
+  console.log("house", house);
+  const paramLon = siderealOrTropical ? "lon_sid" : "lon";
+  console.log(wasm);
+  const cusps = Object.values(wasm.house).map((item) => item[paramLon]);
+  const planetState = wasm.planets;
+  Object.entries(planetState).forEach(([key, value]) => {
+    planetState[key] = {
+      lon: value[paramLon],
+      speed: value["speed"],
+    };
+  });
   if (house === "W" || house === "E") {
-    planetState["MC"] = { lon: wasm.ascmc[1][paramLong], speed: 10000000 };
+    planetState["MC"] = { lon: wasm.ascmc["MC"][paramLon], speed: 1024 };
   }
-  console.log(wasm.ascmc[0], paramLong);
+  console.log(wasm.ascmc[0], paramLon);
   if (house === "W") {
-    planetState["ASC"] = { lon: wasm.ascmc[0][paramLong], speed: 10000000 };
+    planetState["Asc"] = { lon: wasm.ascmc["Asc"][paramLon], speed: 1024 };
   }
+
+  planetState["EP"] = { lon: wasm.ascmc["EP"][paramLon], speed: 1024 };
+  planetState["Vtx"] = { lon: wasm.ascmc["Vtx"][paramLon], speed: 1024 };
   // Use useMatch to get information about the matched route
   // const match = useMatches();
   // console.log(match[1].pathname);
@@ -311,7 +299,6 @@ function App() {
     house,
     sidMode
   );
-  console.log("dateTime");
   return (
     <Container className="d-flex flex-column align-items-center">
       <Col className="d-flex mb-2">
@@ -331,7 +318,7 @@ function App() {
             <Stack direction="horizontal" gap={2} className="w-100">
               <Row>
                 <Col>{dateTime.toFormat("EEEE, yyyy-MM-dd HH:mm:ss Z")}</Col>
-                <Col> Julian Date(ut): {wasm.initDate[0].jd_ut}</Col>
+                <Col> Julian Date(ut): {wasm.initDate.jd_ut}</Col>
                 <Col>{formatLocation(location)}</Col>
               </Row>
               <Stack direction="horizontal" gap={2} className="ms-auto me-2">
@@ -371,21 +358,6 @@ function App() {
                 <Col>Sidereal Mode: {sidOptions[sidMode]}</Col>
                 <Col>House: {houseOptions[house]}</Col>
               </Row>
-              {/* <Row className="md-4">
-              <div>
-                {dateTime.toLocaleString({
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                  second: "numeric",
-                  timeZoneName: "short",
-                })}
-              </div>
-              <div>{formatLocation(location)}</div>
-            </Row> */}
               <Stack direction="horizontal" gap={2} className="ms-auto me-2">
                 <Button
                   onClick={(e) => {

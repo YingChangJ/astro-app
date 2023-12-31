@@ -190,7 +190,7 @@ Module['FS_createPath']("/", "eph", true, true);
     }
 
     }
-    loadPackage({"files": [{"filename": "/eph/seas_18.se1", "start": 0, "end": 223002}, {"filename": "/eph/semo_18.se1", "start": 223002, "end": 1527773}, {"filename": "/eph/sepl_18.se1", "start": 1527773, "end": 2011828}], "remote_package_size": 2011828});
+    loadPackage({"files": [{"filename": "/eph/seas_12.se1", "start": 0, "end": 223396}, {"filename": "/eph/seas_18.se1", "start": 223396, "end": 446398}, {"filename": "/eph/semo_12.se1", "start": 446398, "end": 1752329}, {"filename": "/eph/semo_18.se1", "start": 1752329, "end": 3057100}, {"filename": "/eph/sepl_12.se1", "start": 3057100, "end": 3540857}, {"filename": "/eph/sepl_18.se1", "start": 3540857, "end": 4024912}], "remote_package_size": 4024912});
 
   })();
 

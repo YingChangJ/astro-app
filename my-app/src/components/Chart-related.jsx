@@ -49,7 +49,7 @@ export function Cusps({ cusps, startRadius, length, zodiacRadius }) {
   return generateLines();
 }
 export function Planet({
-  planet,
+  planet, //"Sun", "MC", etc
   lon,
   direction,
   radius_planet,
@@ -63,22 +63,36 @@ export function Planet({
 }) {
   const resPosition = parseDegree(lon);
   const fontsize_degree = "75%";
+  const fontsize_ASCMC = "70%";
   const fontsize_zodiac = "75%";
   const fontsize_minute = "50%";
   const fontsize_retro = "40%";
   const element = Math.floor(resPosition.zodiac % 4);
   const color = colorTheme(element);
+  console.log("planet", planet, ["Asc", "Vtx", "MC", "EP"].includes(planet));
   return (
     <>
-      <Symbols
-        symbolName={planet}
-        radius={radius_planet}
-        theta={planetNonCollision}
-        scale={0.04}
-        sizeCanves={sizeCanvas}
-        color={color}
-        leftDegree={leftDegree}
-      />
+      {["Asc", "Vtx", "MC", "EP"].includes(planet) ? (
+        <Text
+          text={planet}
+          radius={radius_planet}
+          theta={planetNonCollision}
+          color={color}
+          fontSize={fontsize_ASCMC}
+          leftDegree={leftDegree}
+          fontWeight="normal"
+        />
+      ) : (
+        <Symbols
+          symbolName={planet}
+          radius={radius_planet}
+          theta={planetNonCollision}
+          scale={0.04}
+          sizeCanves={sizeCanvas}
+          color={color}
+          leftDegree={leftDegree}
+        />
+      )}
       <Text
         text={resPosition.degree}
         radius={radius_planet_degree}

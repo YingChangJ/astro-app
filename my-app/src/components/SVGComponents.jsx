@@ -16,6 +16,7 @@ import Pluto from "../assets/Pluto.svg?react";
 import MeanNode from "../assets/NorthNode.svg?react";
 import TrueNode from "../assets/NorthNodeTrue.svg?react";
 import MeanApogee from "../assets/BlackMoon.svg?react";
+import TrueApogee from "../assets/BlackMoonTrue.svg?react";
 import Chiron from "../assets/Chiron.svg?react";
 import Pholus from "../assets/Pholus.svg?react";
 import Ceres from "../assets/Ceres.svg?react";
@@ -53,6 +54,8 @@ function SVGFile(props) {
       return <TrueNode {...props} />;
     case "mean Apogee":
       return <MeanApogee {...props} />;
+    case "osc. Apogee":
+      return <TrueApogee {...props} />;
     case "Chiron":
       return <Chiron {...props} />;
     // case "Pholus":
@@ -68,7 +71,8 @@ function SVGFile(props) {
     case "Vesta":
       return <Vesta {...props} />;
     default:
-      return props.retText(props.planet);
+      return;
+    // props.retText(props.planet);
   }
 }
 
@@ -77,7 +81,7 @@ export function Text({
   radius,
   theta,
   color,
-  fontSize = "30",
+  fontSize = "100%",
   //   fontWeight,
   //   isPlanet,
   leftDegree = 0,
@@ -115,18 +119,18 @@ export function Symbols({
   const sin_value = Math.sin(degreesToRadians(theta - leftDegree));
   const x = (-radius * cos_value * sizeCanves) / 100;
   const y = (+radius * sin_value * sizeCanves) / 100;
-  function retText(text) {
-    return (
-      <Text
-        text={text == text.slice(0, 4)}
-        radius={radius}
-        theta={theta}
-        color={color}
-        leftDegree={leftDegree}
-        fontSize={sizeCanves / 80}
-      />
-    );
-  }
+  // function retText(text) {
+  //   return (
+  //     <Text
+  //       text={text == text.slice(0, 4)}
+  //       radius={radius}
+  //       theta={theta}
+  //       color={color}
+  //       leftDegree={leftDegree}
+  //       fontSize={sizeCanves / 80}
+  //     />
+  //   );
+  // }
   return (
     <SVGFile
       planet={symbolName}
@@ -136,7 +140,7 @@ export function Symbols({
       height={`${scale * 100}%`}
       fill={color}
       stroke={color}
-      retText={retText}
+      // retText={retText}
     />
   );
 }
