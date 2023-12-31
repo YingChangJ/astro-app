@@ -14,6 +14,7 @@ import Chart from "./routes/chart.jsx";
 import Vedic from "./routes/vedic.jsx";
 // import Root from "./routes/root.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
+// import "../public/astro.js";
 // Root;
 const router = createBrowserRouter(
   createRoutesFromElements(

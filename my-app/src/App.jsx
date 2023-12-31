@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useState, useRef, useMemo } from "react";
-import { Link, Outlet, useMatches } from "react-router-dom";
+import { useState, useRef, useMemo, useEffect, useMatches } from "react";
+import { Link, Outlet } from "react-router-dom";
 import React from "react";
 import "./App.css";
 import { parseDegreeNoZodiac, distance } from "./utils.js";
@@ -18,6 +18,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Accordion from "react-bootstrap/Accordion";
+
 function Inputs({ inputs, handleInputsChange }) {
   // const renderInputsInRows = (inputs, handleChange) => {
   //   const inputRows = [];
@@ -58,6 +59,20 @@ function formatLocation(location) {
   ).toFixed(4)} ${ns}`;
 }
 function App() {
+  // useEffect(() => {
+  //   // 在组件挂载后等待三秒钟
+  //   const timeoutId = setTimeout(() => {
+  //     // 这里的代码在等待三秒钟后执行
+  //     console.log("After waiting for three seconds");
+
+  //     // ...其他逻辑
+  //   }, 3000);
+
+  //   return () => {
+  //     // 在组件卸载时清除定时器
+  //     clearTimeout(timeoutId);
+  //   };
+  // }, []); // 注意空数组表示只在组件挂载时执行一次
   const inputsParametersTime = [
     "year",
     "month",
@@ -95,6 +110,9 @@ function App() {
   };
 
   //Hooks
+  // data
+  const [wasm, setWasm] = useState(null);
+
   const [helio, setHelio] = useState(false);
   const [siderealOrTropical, setSiderealOrTropical] = useState(false); //false: tropical, true: sidereal
   //settings
@@ -241,47 +259,45 @@ function App() {
   // const iflag = 258 | (helio ? 8 : 0);
   // console.log("flag", iflag);
   // console.log("sidMode", sidMode);
-  const wasm = useMemo(() => {
-    // Check the condition
-    if (dateTime.toUTC().year > 3000 || dateTime.toUTC().year < -3000) {
-      // If the condition is met, return the current value without re-computation
-      return wasm;
-    }
-    // Perform the computation using wasm
-    return JSON.parse(
-      window.Module.ccall(
-        "get",
-        "string",
-        [
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
-          "number",
+  function HandleWasm() {
+    setWasm(
+      JSON.parse(
+        window.Module.ccall(
+          "get",
           "string",
-          "number",
-        ],
-        [
-          dateTime.toUTC().year,
-          dateTime.toUTC().month,
-          dateTime.toUTC().day,
-          dateTime.toUTC().hour,
-          dateTime.toUTC().minute,
-          dateTime.toUTC().second,
-          sidMode,
-          location.longitude,
-          location.latitude,
-          house,
-          258 | (helio ? 8 : 0),
-        ]
+          [
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "number",
+            "string",
+            "number",
+          ],
+          [
+            dateTime.toUTC().year,
+            dateTime.toUTC().month,
+            dateTime.toUTC().day,
+            dateTime.toUTC().hour,
+            dateTime.toUTC().minute,
+            dateTime.toUTC().second,
+            sidMode,
+            location.longitude,
+            location.latitude,
+            house,
+            258 | (helio ? 8 : 0),
+          ]
+        )
       )
     );
-  }, [house, helio, dateTime, location, sidMode]);
-
+  }
+  if (!wasm) {
+    return <Button onClick={HandleWasm}>Calculate</Button>;
+  }
   const paramLon = siderealOrTropical ? "lon_sid" : "lon";
   console.log(wasm);
   const cusps = Object.values(wasm.house).map((item) => item[paramLon]);
@@ -385,6 +401,7 @@ function App() {
           Bazi
         </Link>
       </Col>
+      <Button onClick={HandleWasm}>Calculate</Button>
       <Accordion className="mb-2">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
