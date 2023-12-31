@@ -74,7 +74,7 @@ export function Planet({
         symbolName={planet}
         radius={radius_planet}
         theta={planetNonCollision}
-        scale={0.05}
+        scale={0.04}
         sizeCanves={sizeCanvas}
         color={color}
         leftDegree={leftDegree}

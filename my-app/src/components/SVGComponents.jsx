@@ -17,10 +17,11 @@ import MeanNode from "../assets/NorthNode.svg?react";
 import TrueNode from "../assets/NorthNodeTrue.svg?react";
 import MeanApogee from "../assets/BlackMoon.svg?react";
 import Chiron from "../assets/Chiron.svg?react";
-// import Pholus from "../assets/Pholus.svg?react";
+import Pholus from "../assets/Pholus.svg?react";
 import Ceres from "../assets/Ceres.svg?react";
 import Pallas from "../assets/Pallas.svg?react";
 import Juno from "../assets/Juno.svg?react";
+import Vesta from "../assets/Vesta.svg?react";
 
 // import Vesta from "../assets/Vesta.svg?react";
 
@@ -62,10 +63,12 @@ function SVGFile(props) {
       return <Pallas {...props} />;
     case "Juno":
       return <Juno {...props} />;
-    // case "Vesta":
-    //   return <Vesta {...props} />;
+    case "Pholus":
+      return <Pholus {...props} />;
+    case "Vesta":
+      return <Vesta {...props} />;
     default:
-      break;
+      return props.retText(props.planet);
   }
 }
 
@@ -112,6 +115,18 @@ export function Symbols({
   const sin_value = Math.sin(degreesToRadians(theta - leftDegree));
   const x = (-radius * cos_value * sizeCanves) / 100;
   const y = (+radius * sin_value * sizeCanves) / 100;
+  function retText(text) {
+    return (
+      <Text
+        text={text == text.slice(0, 4)}
+        radius={radius}
+        theta={theta}
+        color={color}
+        leftDegree={leftDegree}
+        fontSize={sizeCanves / 80}
+      />
+    );
+  }
   return (
     <SVGFile
       planet={symbolName}
@@ -121,7 +136,7 @@ export function Symbols({
       height={`${scale * 100}%`}
       fill={color}
       stroke={color}
-      // transform={`translate(${x}, ${y})`}
+      retText={retText}
     />
   );
 }
@@ -167,11 +182,14 @@ export function SelectDropdown({ onSelect, options }) {
   };
 
   return (
-    <Form.Select onChange={handleSelect} style={{ maxWidth: "250px" }}>
-      {/* <option value="">Select an Option</option> */}
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
+    <Form.Select
+      onChange={handleSelect}
+      style={{ maxWidth: "250px" }}
+      className="mb-2"
+    >
+      {Object.entries(options).map(([value, label]) => (
+        <option key={value} value={value}>
+          {label}
         </option>
       ))}
     </Form.Select>

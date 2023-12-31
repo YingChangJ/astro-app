@@ -1,0 +1,363 @@
+{
+  "initDate": [
+    {
+      "year": 2023,
+      "month": 12,
+      "day": 30,
+      "hour": 9,
+      "minute": 30,
+      "second": 9,
+      "jd_ut": 2460308.895938
+    }
+  ],
+  "ayan": 24.190789,
+  "planets": [
+    {
+      "index": 0,
+      "name": "Sun",
+      "long": 278.404595,
+      "long_sid": 254.213806,
+      "lat": 0.000196,
+      "distance": 0.983344,
+      "speed": 1.018844,
+      "long_s": " 8 cp 24'16.5428",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 1,
+      "name": "Moon",
+      "long": 136.831761,
+      "long_sid": 112.640972,
+      "lat": 4.530011,
+      "distance": 0.002688,
+      "speed": 12.065256,
+      "long_s": "16 le 49'54.3406",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 2,
+      "name": "Mercury",
+      "long": 262.788761,
+      "long_sid": 238.597972,
+      "lat": 3.119467,
+      "distance": 0.748196,
+      "speed": -0.454845,
+      "long_s": "22 sa 47'19.5404",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 3,
+      "name": "Venus",
+      "long": 240.663082,
+      "long_sid": 216.472292,
+      "lat": 1.99571,
+      "distance": 1.171787,
+      "speed": 1.214356,
+      "long_s": " 0 sa 39'47.0934",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 4,
+      "name": "Mars",
+      "long": 266.120049,
+      "long_sid": 241.92926,
+      "lat": -0.534861,
+      "distance": 2.428649,
+      "speed": 0.740203,
+      "long_s": "26 sa  7'12.1770",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 5,
+      "name": "Jupiter",
+      "long": 35.581915,
+      "long_sid": 11.391125,
+      "lat": -1.193687,
+      "distance": 4.458293,
+      "speed": -0.002472,
+      "long_s": " 5 ta 34'54.8926",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 6,
+      "name": "Saturn",
+      "long": 333.103104,
+      "long_sid": 308.912315,
+      "lat": -1.636105,
+      "distance": 10.273216,
+      "speed": 0.086644,
+      "long_s": " 3 pi  6'11.1742",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 7,
+      "name": "Uranus",
+      "long": 49.41997,
+      "long_sid": 25.229181,
+      "lat": -0.306688,
+      "distance": 18.954463,
+      "speed": -0.023051,
+      "long_s": "19 ta 25'11.8908",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 8,
+      "name": "Neptune",
+      "long": 355.053514,
+      "long_sid": 330.862725,
+      "lat": -1.238147,
+      "distance": 30.115576,
+      "speed": 0.013693,
+      "long_s": "25 pi  3'12.6515",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 9,
+      "name": "Pluto",
+      "long": 299.308099,
+      "long_sid": 275.11731,
+      "lat": -2.765855,
+      "distance": 35.837416,
+      "speed": 0.030776,
+      "long_s": "29 cp 18'29.1567",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 10,
+      "name": "mean Node",
+      "long": 20.961841,
+      "long_sid": 356.771052,
+      "lat": 0.0,
+      "distance": 0.00257,
+      "speed": -0.052941,
+      "long_s": "20 ar 57'42.6266",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 11,
+      "name": "true Node",
+      "long": 21.299264,
+      "long_sid": 357.108475,
+      "lat": 0.0,
+      "distance": 0.002457,
+      "speed": -0.174424,
+      "long_s": "21 ar 17'57.3492",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 12,
+      "name": "mean Apogee",
+      "long": 159.794775,
+      "long_sid": 135.603986,
+      "lat": 3.392158,
+      "distance": 0.002711,
+      "speed": 0.11133,
+      "long_s": " 9 vi 47'41.1914",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 13,
+      "name": "osc. Apogee",
+      "long": 165.307818,
+      "long_sid": 141.117028,
+      "lat": 2.953788,
+      "distance": 0.002707,
+      "speed": -1.033666,
+      "long_s": "15 vi 18'28.1431",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 15,
+      "name": "Chiron",
+      "long": 15.45661,
+      "long_sid": 351.26582,
+      "lat": 1.361455,
+      "distance": 18.577432,
+      "speed": 0.00299,
+      "long_s": "15 ar 27'23.7945",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 16,
+      "name": "Pholus",
+      "long": 278.041637,
+      "long_sid": 253.850848,
+      "lat": 9.320264,
+      "distance": 30.875545,
+      "speed": 0.036608,
+      "long_s": " 8 cp  2'29.8921",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 17,
+      "name": "Ceres",
+      "long": 254.786329,
+      "long_sid": 230.59554,
+      "lat": 1.966689,
+      "distance": 3.630908,
+      "speed": 0.409855,
+      "long_s": "14 sa 47'10.7840",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 18,
+      "name": "Pallas",
+      "long": 226.952345,
+      "long_sid": 202.761556,
+      "lat": 18.559497,
+      "distance": 3.080328,
+      "speed": 0.385867,
+      "long_s": "16 sc 57' 8.4429",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 19,
+      "name": "Juno",
+      "long": 171.166409,
+      "long_sid": 146.97562,
+      "lat": -5.868678,
+      "distance": 2.027636,
+      "speed": 0.100036,
+      "long_s": "21 vi  9'59.0721",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 20,
+      "name": "Vesta",
+      "long": 87.397861,
+      "long_sid": 63.207072,
+      "lat": -2.485737,
+      "distance": 1.592103,
+      "speed": -0.252511,
+      "long_s": "27 ge 23'52.2990",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 21,
+      "name": "intp. Apogee",
+      "long": 163.146536,
+      "long_sid": 138.955747,
+      "lat": 3.117828,
+      "distance": 0.002706,
+      "speed": 0.21413,
+      "long_s": "13 vi  8'47.5291",
+      "iflagret": 65858,
+      "error": 0
+    },
+    {
+      "index": 22,
+      "name": "intp. Perigee",
+      "long": 315.162709,
+      "long_sid": 290.97192,
+      "lat": -4.596267,
+      "distance": 0.00244,
+      "speed": 0.203768,
+      "long_s": "15 aq  9'45.7523",
+      "iflagret": 65858,
+      "error": 0
+    }
+  ],
+  "ascmc": [
+    {
+      "name": "Asc",
+      "long": 328.973783,
+      "long_sid": 304.782994,
+      "long_s": "28 aq 58'25.6190"
+    },
+    {
+      "name": "MC",
+      "long": 243.146002,
+      "long_sid": 218.955212,
+      "long_s": " 3 sa  8'45.6058"
+    }
+  ],
+  "house": [
+    {
+      "name": "1",
+      "long": 300.0,
+      "long_sid": 300.0,
+      "long_s": " 0 aq  0' 0.0000"
+    },
+    {
+      "name": "2",
+      "long": 330.0,
+      "long_sid": 330.0,
+      "long_s": " 0 pi  0' 0.0000"
+    },
+    { "name": "3", "long": 0.0, "long_sid": 0.0, "long_s": " 0 ar  0' 0.0000" },
+    {
+      "name": "4",
+      "long": 30.0,
+      "long_sid": 30.0,
+      "long_s": " 0 ta  0' 0.0000"
+    },
+    {
+      "name": "5",
+      "long": 60.0,
+      "long_sid": 60.0,
+      "long_s": " 0 ge  0' 0.0000"
+    },
+    {
+      "name": "6",
+      "long": 90.0,
+      "long_sid": 90.0,
+      "long_s": " 0 cn  0' 0.0000"
+    },
+    {
+      "name": "7",
+      "long": 120.0,
+      "long_sid": 120.0,
+      "long_s": " 0 le  0' 0.0000"
+    },
+    {
+      "name": "8",
+      "long": 150.0,
+      "long_sid": 150.0,
+      "long_s": " 0 vi  0' 0.0000"
+    },
+    {
+      "name": "9",
+      "long": 180.0,
+      "long_sid": 180.0,
+      "long_s": " 0 li  0' 0.0000"
+    },
+    {
+      "name": "10",
+      "long": 210.0,
+      "long_sid": 210.0,
+      "long_s": " 0 sc  0' 0.0000"
+    },
+    {
+      "name": "11",
+      "long": 240.0,
+      "long_sid": 240.0,
+      "long_s": " 0 sa  0' 0.0000"
+    },
+    {
+      "name": "12",
+      "long": 270.0,
+      "long_sid": 270.0,
+      "long_s": " 0 cp  0' 0.0000"
+    }
+  ]
+}

@@ -34,7 +34,14 @@ function LocationComponent({ updateGeo }) {
   return (
     <>
       {/* Create a button that is mapped to the function which retrieves the user's location */}
-      <Button onClick={getUserLocation} style={{ width: "155px" }}>
+      <Button
+        onClick={(e) => {
+          e.stopPropagation(); // Stop the event from propagating
+          getUserLocation();
+        }}
+        // className="mb-2"
+        style={{ width: "155px" }}
+      >
         Get Location
       </Button>
     </>

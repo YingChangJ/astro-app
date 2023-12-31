@@ -74,22 +74,31 @@ function App() {
     "latMin",
     "latSec",
   ];
-  const sidOptions = [
-    { label: "Fagan/Bradley", value: 0 },
-    { label: "Lahiri", value: 1 },
-    { label: "True Citra", value: 27 },
-    { label: "Raman", value: 3 },
-    { label: "Yukteshwar", value: 7 },
-    { label: "Galactic Center (Gil Brand)", value: 30 },
-    { label: "True Pushya (PVRN Rao)", value: 29 },
-  ];
+  const sidOptions = {
+    0: "Fagan/Bradley",
+    1: "Lahiri",
+    27: "True Citra",
+    3: "Raman",
+    7: "Yukteshwar",
+    30: "Galactic Center (Gil Brand)",
+    29: "True Pushya (PVRN Rao)",
+  };
+  const houseOptions = {
+    P: "Placidus",
+    K: "Koch",
+    B: "Alcabitus",
+    E: "Equal",
+    W: "Whole sign",
+    R: "Regiomontanus",
+    C: "Campanus",
+  };
 
   //Hooks
   const [helio, setHelio] = useState(false);
   const [siderealOrTropical, setSiderealOrTropical] = useState(false); //false: tropical, true: sidereal
   //settings
   const [sidMode, setSidMode] = useState(1); //swe_set_sid_mode
-  const [house, setHouse] = useState(1);
+  const [house, setHouse] = useState("P");
   //location and datetime: they are
   const [dateTime, setDateTime] = useState(DateTime.utc());
   const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
@@ -231,28 +240,33 @@ function App() {
       sidMode,
       location.longitude,
       location.latitude,
-      "P",
+      house,
       iflag,
     ]
   );
+  console.log("house", house);
   const wasm = JSON.parse(wasmResult);
-
+  const paramLong = siderealOrTropical ? "long_sid" : "long";
   let planetState,
     cusps = undefined;
   if (isOver1800.current) {
-    const paraLong = siderealOrTropical ? "long_sid" : "long";
     console.log(wasmResult);
 
-    cusps = wasm.house.map((item) => item[paraLong]);
+    cusps = wasm.house.map((item) => item[paramLong]);
     planetState = wasm.planets.reduce((result, item) => {
-      if (item.name !== "intp. Apogee" && item.name !== "intp. Perigee") {
-        result[item.name] = { lon: item[paraLong], speed: item.speed };
+      if (
+        item.name !== "intp. Apogee" &&
+        item.name !== "intp. Perigee" &&
+        item.name !== "osc. Apogee"
+      ) {
+        result[item.name] = { lon: item[paramLong], speed: item.speed };
       }
       return result;
     }, {});
   } else {
     const paraLongDiff = siderealOrTropical ? wasm.ayan : 0;
     // console.log("ayan", paraLongDiff);
+    //{Sun:{lon:1,speed:2},Moon:{lon:2,speed:3},...}
     planetState = planetsPositionsList(dateTime.toJSDate(), helio);
     Object.entries(planetState).forEach(([planet]) => {
       planetState[planet].lon =
@@ -264,13 +278,34 @@ function App() {
       location.latitude
     ).map((cuspDegree) => (cuspDegree - paraLongDiff + 360) % 360);
   }
+  if (house === "W" || house === "E") {
+    planetState["MC"] = { lon: wasm.ascmc[1][paramLong], speed: 10000000 };
+  }
+  console.log(wasm.ascmc[0], paramLong);
+  if (house === "W") {
+    planetState["ASC"] = { lon: wasm.ascmc[0][paramLong], speed: 10000000 };
+  }
   // Use useMatch to get information about the matched route
   const match = useMatches();
   console.log(match[1].pathname);
-
+  console.log(
+    dateTime.toLocaleString({
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      timeZoneName: "short",
+    }),
+    formatLocation(location),
+    house,
+    sidMode
+  );
   return (
     <Container className="d-flex flex-column align-items-center">
-      <Col className="d-flex">
+      <Col className="d-flex mb-2">
         <Link to="/" className="mx-3">
           Chart
         </Link>
@@ -281,10 +316,63 @@ function App() {
           Bazi
         </Link>
       </Col>
-      <Accordion>
+      <Accordion className="mb-2">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
-            <Row className="md-4">
+            <Stack direction="horizontal" gap={2} className="w-100">
+              <Row>
+                <div>
+                  {dateTime.toLocaleString({
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                    second: "numeric",
+                    timeZoneName: "short",
+                  })}
+                </div>
+                <div>{formatLocation(location)}</div>
+              </Row>
+              <Stack direction="horizontal" gap={2} className="ms-auto me-2">
+                <GeoComp updateGeo={updateGeo} />
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stop the event from propagating
+                    updateTime();
+                  }}
+                  style={{ width: "155px" }}
+                >
+                  Get Time
+                </Button>
+              </Stack>
+            </Stack>
+          </Accordion.Header>
+          <Accordion.Body>
+            <div>
+              <Inputs
+                inputs={timeInputs.current}
+                handleInputsChange={handleTimeInputChange}
+              />
+              <Inputs
+                inputs={locationInputs.current}
+                handleInputsChange={handleLocationInputChange}
+              />
+              <Button onClick={clearInputs} className="mt-2">
+                Clear
+              </Button>
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>
+        <Accordion.Item eventKey="1">
+          <Accordion.Header>
+            <Stack direction="horizontal" className="w-100">
+              <Row xs="auto">
+                <Col>Sidereal Mode: {sidOptions[sidMode]}</Col>
+                <Col>House: {houseOptions[house]}</Col>
+              </Row>
+              {/* <Row className="md-4">
               <div>
                 {dateTime.toLocaleString({
                   weekday: "long",
@@ -298,41 +386,38 @@ function App() {
                 })}
               </div>
               <div>{formatLocation(location)}</div>
-            </Row>
+            </Row> */}
+              <Stack direction="horizontal" gap={2} className="ms-auto me-2">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stop the event from propagating
+                    handleHelio();
+                  }}
+                  style={{ width: "155px" }}
+                >
+                  {helio ? "Heliocentric" : "Geocentric"}
+                </Button>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Stop the event from propagating
+                    handleSidereal();
+                  }}
+                  style={{ width: "155px" }}
+                >
+                  {siderealOrTropical ? "Sidereal" : "Tropical"}
+                </Button>
+              </Stack>
+            </Stack>
           </Accordion.Header>
           <Accordion.Body>
-            <div>
-              <Inputs
-                inputs={timeInputs.current}
-                handleInputsChange={handleTimeInputChange}
-              />
-              <Inputs
-                inputs={locationInputs.current}
-                handleInputsChange={handleLocationInputChange}
-              />
-              <button onClick={clearInputs} className="btn btn-blue">
-                Clear
-              </button>
-            </div>
+            <Stack direction="horizontal" gap={3} className="mx-auto">
+              <SelectDropdown onSelect={setSidMode} options={sidOptions} />
+              <SelectDropdown onSelect={setHouse} options={houseOptions} />
+            </Stack>
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
-      <div></div>
-      <div className="grid grid-cols-2 gap-4">
-        <Button onClick={handleHelio} style={{ width: "155px" }}>
-          {helio ? "Heliocentric" : "Geocentric"}
-        </Button>
-        <Button onClick={handleSidereal} style={{ width: "155px" }}>
-          {siderealOrTropical ? "Sidereal" : "Tropical"}
-        </Button>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <GeoComp updateGeo={updateGeo} />
-        <Button onClick={updateTime} style={{ width: "155px" }}>
-          Get Time
-        </Button>
-      </div>
-      <SelectDropdown onSelect={setSidMode} options={sidOptions} />
+
       <Outlet context={[planetState, cusps]} />
       {/* <script type="module" src="/astro.js"></script> */}
     </Container>
