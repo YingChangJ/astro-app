@@ -98,7 +98,10 @@ function App() {
   const [siderealOrTropical, setSiderealOrTropical] = useState(false); //false: tropical, true: sidereal
   //settings
   const [sidMode, setSidMode] = useState(1); //swe_set_sid_mode
-  const [house, setHouse] = useState("P");
+  const [house, setHouse] = useState("P"); //swe_house_ex
+  const [nodeType, setNodeType] = useState("mean"); //"mean", "true"
+  const [lilithType, setlilithType] = useState("mean"); //"mean", "true"
+
   //location and datetime: they are
   const [dateTime, setDateTime] = useState(DateTime.utc());
   const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
@@ -122,9 +125,6 @@ function App() {
   function handleSidereal() {
     setSiderealOrTropical((prev) => !prev);
   }
-  // function handleSidMode(sidNumber) {
-  //   setSidMode(sidNumber);
-  // }
   function handleTimeInputChange(key, value) {
     timeInputs.current = { ...timeInputs.current, [key]: value };
     const offsetInMinutes = (parseFloat(timeInputs.current.offset) || 0) * 60;
@@ -140,11 +140,17 @@ function App() {
       },
       { zone: offsetInMinutes }
     );
+    console.log("year", timeInputs.current.year, updatedDateTime);
     if (updatedDateTime.isValid) {
       const takeFractionalHour = updatedDateTime.plus({
         seconds: ((parseFloat(timeInputs.current.hour) || 0) % 1) * 3600,
       });
       setDateTime(takeFractionalHour);
+      console.log(
+        "after sec added",
+        ((parseFloat(timeInputs.current.hour) || 0) % 1) * 3600,
+        takeFractionalHour
+      );
       const yearToCheck = takeFractionalHour.toUTC().year;
       if (yearToCheck >= 1800 && yearToCheck <= 2400) {
         isOver1800.current = true;
@@ -213,7 +219,9 @@ function App() {
   const iflag = 258 | (helio ? 8 : 0);
   // console.log("flag", iflag);
   // console.log("sidMode", sidMode);
-
+  if (dateTime.toUTC().year >= 3000 && dateTime.toUTC().year <= -2000) {
+    return;
+  }
   const wasmResult = window.Module.ccall(
     "get",
     "string",
@@ -286,8 +294,8 @@ function App() {
     planetState["ASC"] = { lon: wasm.ascmc[0][paramLong], speed: 10000000 };
   }
   // Use useMatch to get information about the matched route
-  const match = useMatches();
-  console.log(match[1].pathname);
+  // const match = useMatches();
+  // console.log(match[1].pathname);
   console.log(
     dateTime.toLocaleString({
       weekday: "long",
@@ -303,6 +311,7 @@ function App() {
     house,
     sidMode
   );
+  console.log("dateTime");
   return (
     <Container className="d-flex flex-column align-items-center">
       <Col className="d-flex mb-2">
@@ -321,19 +330,9 @@ function App() {
           <Accordion.Header>
             <Stack direction="horizontal" gap={2} className="w-100">
               <Row>
-                <div>
-                  {dateTime.toLocaleString({
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "numeric",
-                    second: "numeric",
-                    timeZoneName: "short",
-                  })}
-                </div>
-                <div>{formatLocation(location)}</div>
+                <Col>{dateTime.toFormat("EEEE, yyyy-MM-dd HH:mm:ss Z")}</Col>
+                <Col> Julian Date(ut): {wasm.initDate[0].jd_ut}</Col>
+                <Col>{formatLocation(location)}</Col>
               </Row>
               <Stack direction="horizontal" gap={2} className="ms-auto me-2">
                 <GeoComp updateGeo={updateGeo} />
