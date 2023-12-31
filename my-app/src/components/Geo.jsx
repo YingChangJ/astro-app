@@ -42,9 +42,9 @@ function LocationComponent({ updateGeo }) {
           getUserLocation();
         }}
         // className="mb-2"
-        style={{ width: "155px" }}
+        // style={{ width: "155px" }}
       >
-        Get Location
+        Get Loc.
       </Button>
     </>
   );

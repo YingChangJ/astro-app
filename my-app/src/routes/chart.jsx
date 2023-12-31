@@ -3,6 +3,8 @@ import React from "react";
 import { avoidCollision } from "../utils.js";
 import { Line, Circle } from "../components/SVGComponents.jsx";
 import { Planet, Cusps } from "../components/Chart-related.jsx";
+// import Figure from "react-bootstrap/Figure";
+import Col from "react-bootstrap/Col";
 export default function Chart() {
   const [planetState, cusps] = useOutletContext();
   const svgWidth = 404;
@@ -29,48 +31,51 @@ export default function Chart() {
   const diff = 7; //avoid planets overlapped in chart
   const planetNonCollision = avoidCollision(planetState, diff);
   return (
-    <svg
-      viewBox={
-        -svgWidth / 2 + " -" + svgWidth / 2 + " " + svgWidth + " " + svgWidth
-      }
-      xmlns="http://www.w3.org/2000/svg"
-      version="1.1"
-    >
-      {[radius_out, radius_house, radius_zodiac, radius_inner].map(
-        (r, index) => (
-          <Circle key={r} radius={r + "%"} stroke={stroke[index]} />
-        )
-      )}
-      <Cusps
-        cusps={cusps}
-        startRadius={radius_zodiac}
-        length={radius_zodiac - radius_house}
-        zodiacRadius={radius_zodiac * 0.5 + radius_out * 0.5}
-      />
-      {Object.keys(planetState).map((planet) => (
-        // <React.Fragment>
-        <React.Fragment key={planet}>
-          <Planet
-            planet={planet} //"Sun", "MC", etc.
-            lon={planetState[planet].lon}
-            direction={planetState[planet].speed < 0}
-            radius_planet={radius_planet}
-            radius_planet_degree={radius_planet_degree}
-            radius_planet_zodiac={radius_planet_zodiac}
-            radius_planet_minute={radius_planet_minute}
-            radius_planet_retro={radius_planet_retro}
-            sizeCanvas={svgWidth}
-            planetNonCollision={planetNonCollision[planet]}
-            leftDegree={cusps[0]}
-          />
-          <Line
-            startRadius={radius_zodiac}
-            length={2}
-            theta={planetState[planet].lon}
-            leftDegree={cusps[0]}
-          />
-        </React.Fragment>
-      ))}
-    </svg>
+    <Col sm="12" md="6">
+      <svg
+        viewBox={
+          -svgWidth / 2 + " -" + svgWidth / 2 + " " + svgWidth + " " + svgWidth
+        }
+        width={svgWidth}
+        height={svgWidth}
+        xmlns="http://www.w3.org/2000/svg"
+        version="1.1"
+      >
+        {[radius_out, radius_house, radius_zodiac, radius_inner].map(
+          (r, index) => (
+            <Circle key={r} radius={r + "%"} stroke={stroke[index]} />
+          )
+        )}
+        <Cusps
+          cusps={cusps}
+          startRadius={radius_zodiac}
+          length={radius_zodiac - radius_house}
+          zodiacRadius={radius_zodiac * 0.5 + radius_out * 0.5}
+        />
+        {Object.keys(planetState).map((planet) => (
+          <React.Fragment key={planet}>
+            <Planet
+              planet={planet} //"Sun", "MC", etc.
+              lon={planetState[planet].lon}
+              direction={planetState[planet].speed < 0}
+              radius_planet={radius_planet}
+              radius_planet_degree={radius_planet_degree}
+              radius_planet_zodiac={radius_planet_zodiac}
+              radius_planet_minute={radius_planet_minute}
+              radius_planet_retro={radius_planet_retro}
+              sizeCanvas={svgWidth}
+              planetNonCollision={planetNonCollision[planet]}
+              leftDegree={cusps[0]}
+            />
+            <Line
+              startRadius={radius_zodiac}
+              length={2}
+              theta={planetState[planet].lon}
+              leftDegree={cusps[0]}
+            />
+          </React.Fragment>
+        ))}
+      </svg>
+    </Col>
   );
 }

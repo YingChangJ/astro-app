@@ -81,3 +81,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+/* .figure-container {
+  max-height: 100vh; /* Set the maximum height to 100% of the viewport height */
+/* overflow: hidden; /* Hide any overflow content */
+body {
+  margin: 0;
+  padding: 0;
+}

@@ -19,13 +19,23 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Accordion from "react-bootstrap/Accordion";
 function Inputs({ inputs, handleInputsChange }) {
-  const renderInputsInRows = (inputs, handleChange) => {
-    const inputRows = [];
-    let currentRow = [];
+  // const renderInputsInRows = (inputs, handleChange) => {
+  //   const inputRows = [];
+  //   let currentRow = [];
 
-    Object.keys(inputs).forEach((param, index) => {
-      currentRow.push(
-        <Col xs md={4}>
+  //     // Check if it's the third input in the row or the last input
+  //     if ((index + 1) % 3 === 0 || index === Object.keys(inputs).length - 1) {
+  //       inputRows.push(<Row key={index}>{currentRow}</Row>);
+  //       currentRow = [];
+  //     }
+  //   });
+
+  //   return inputRows;
+  // };
+  return (
+    <Row className="w-100 d-flex">
+      {Object.keys(inputs).map((param, index) => (
+        <Col md={2} key={param}>
           <Form.Label>{param}</Form.Label>
           <Form.Control
             className="text-center"
@@ -33,24 +43,11 @@ function Inputs({ inputs, handleInputsChange }) {
             step="any"
             inputMode="numeric" // Specifies that the input should only accept numeric values
             value={inputs[param]}
-            onChange={(e) => handleChange(param, e.target.value)}
+            onChange={(e) => handleInputsChange(param, e.target.value)}
           />
         </Col>
-      );
-
-      // Check if it's the third input in the row or the last input
-      if ((index + 1) % 3 === 0 || index === Object.keys(inputs).length - 1) {
-        inputRows.push(<Row key={index}>{currentRow}</Row>);
-        currentRow = [];
-      }
-    });
-
-    return inputRows;
-  };
-  return (
-    <Container fluid>
-      {renderInputsInRows(inputs, handleInputsChange)}
-    </Container>
+      ))}
+    </Row>
   );
 }
 function formatLocation(location) {
@@ -376,7 +373,7 @@ function App() {
   // console.log(match[1].pathname);
   console.log("state", planetState);
   return (
-    <Container className="d-flex flex-column align-items-center">
+    <Container className="d-flex flex-column align-items-center w-100">
       <Col className="d-flex mb-2">
         <Link to="/" className="mx-3">
           Chart
@@ -414,9 +411,9 @@ function App() {
                       e.stopPropagation(); // Stop the event from propagating
                       updateTime();
                     }}
-                    style={{ width: "155px" }}
+                    // style={{ width: "155px" }}
                   >
-                    Get Time
+                    Now
                   </Button>
                 </Col>
               </Row>
@@ -441,7 +438,7 @@ function App() {
         <Accordion.Item eventKey="1">
           <Accordion.Header>
             <Stack direction="horizontal" className="w-100">
-              <Row xs="auto">
+              <Row>
                 <Col>
                   <div className="d-none d-md-inline">Sidereal Mode: </div>
                   {sidOptions[sidMode]}
@@ -451,7 +448,7 @@ function App() {
                   {houseOptions[house]}
                 </Col>
               </Row>
-              <Row className="ms-auto me-2">
+              <Row className="ms-auto">
                 <Col>
                   <Button
                     size="sm"
@@ -460,9 +457,9 @@ function App() {
                       e.stopPropagation(); // Stop the event from propagating
                       handleHelio();
                     }}
-                    style={{ width: "155px" }}
+                    // style={{ width: "150px" }}
                   >
-                    {helio ? "Heliocentric" : "Geocentric"}
+                    {helio ? "Helio" : "Geo"}
                   </Button>
                 </Col>
                 <Col>
@@ -472,9 +469,9 @@ function App() {
                       e.stopPropagation(); // Stop the event from propagating
                       handleSidereal();
                     }}
-                    style={{ width: "155px" }}
+                    // style={{ width: "150px" }}
                   >
-                    {siderealOrTropical ? "Sidereal" : "Tropical"}
+                    {siderealOrTropical ? "Sid" : "Trop"}
                   </Button>
                 </Col>
               </Row>
@@ -510,6 +507,8 @@ function App() {
         </Accordion.Item>
       </Accordion>
       <Outlet context={[planetState, cusps]} />
+      <Form.Control type="datetime-local" />
+      <Form.Control type="date" />
     </Container>
   );
 }

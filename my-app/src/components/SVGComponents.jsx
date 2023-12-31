@@ -205,19 +205,20 @@ export function SelectDropdown({ onSelect, options }) {
 export function CheckTrueOrMean({ option, onToggle }) {
   return (
     <Form>
-      <Form.Check
-        label="True"
-        type="radio"
-        value="true"
-        checked={option === "true"}
-        onChange={() => onToggle("true")}
-      />
+      {" "}
       <Form.Check
         label="Mean"
         type="radio"
         value="mean"
         checked={option === "mean"}
         onChange={() => onToggle("mean")}
+      />
+      <Form.Check
+        label="True"
+        type="radio"
+        value="true"
+        checked={option === "true"}
+        onChange={() => onToggle("true")}
       />
     </Form>
   );
