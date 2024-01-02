@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useState, useRef, useMemo, useEffect, useMatches } from "react";
-import { Link, Outlet } from "react-router-dom";
 import React from "react";
 import "./App.css";
 import { parseDegreeNoZodiac, distance } from "./utils.js";
@@ -18,21 +17,9 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Accordion from "react-bootstrap/Accordion";
+import { Outlet } from "react-router-dom";
 
 function Inputs({ inputs, handleInputsChange }) {
-  // const renderInputsInRows = (inputs, handleChange) => {
-  //   const inputRows = [];
-  //   let currentRow = [];
-
-  //     // Check if it's the third input in the row or the last input
-  //     if ((index + 1) % 3 === 0 || index === Object.keys(inputs).length - 1) {
-  //       inputRows.push(<Row key={index}>{currentRow}</Row>);
-  //       currentRow = [];
-  //     }
-  //   });
-
-  //   return inputRows;
-  // };
   return (
     <Row className="w-100 d-flex">
       {Object.keys(inputs).map((param, index) => (
@@ -59,20 +46,6 @@ function formatLocation(location) {
   ).toFixed(4)} ${ns}`;
 }
 function App() {
-  // useEffect(() => {
-  //   // 在组件挂载后等待三秒钟
-  //   const timeoutId = setTimeout(() => {
-  //     // 这里的代码在等待三秒钟后执行
-  //     console.log("After waiting for three seconds");
-
-  //     // ...其他逻辑
-  //   }, 3000);
-
-  //   return () => {
-  //     // 在组件卸载时清除定时器
-  //     clearTimeout(timeoutId);
-  //   };
-  // }, []); // 注意空数组表示只在组件挂载时执行一次
   const inputsParametersTime = [
     "year",
     "month",
@@ -111,7 +84,7 @@ function App() {
 
   //Hooks
   // data
-  const [wasm, setWasm] = useState(null);
+  // const [wasm, setWasm] = useState(null);
 
   const [helio, setHelio] = useState(false);
   const [siderealOrTropical, setSiderealOrTropical] = useState(false); //false: tropical, true: sidereal
@@ -159,8 +132,18 @@ function App() {
     Object.fromEntries(inputsParametersLocation.map((param) => [param, 0]))
   );
   //others
-  const [, setForceRender] = useState(false);
-  const isOver1800 = useRef(true);
+  const [forceRender, setForceRender] = useState(64);
+  const isOver1800 = useRef(2);
+  // console.log(forceRender);
+  // if (forceRender)
+  //   return (
+  //     <Button
+  //       onClick={setForceRender(20)}
+  //       className="container d-flex align-items-center justify-content-center vh-100"
+  //     >
+  //       asd
+  //     </Button>
+  //   );
 
   //Handle funs
   function handleHelio() {
@@ -256,48 +239,40 @@ function App() {
     });
     triggerRerender();
   }
-  // const iflag = 258 | (helio ? 8 : 0);
-  // console.log("flag", iflag);
-  // console.log("sidMode", sidMode);
-  function HandleWasm() {
-    setWasm(
-      JSON.parse(
-        window.Module.ccall(
-          "get",
-          "string",
-          [
-            "number",
-            "number",
-            "number",
-            "number",
-            "number",
-            "number",
-            "number",
-            "number",
-            "number",
-            "string",
-            "number",
-          ],
-          [
-            dateTime.toUTC().year,
-            dateTime.toUTC().month,
-            dateTime.toUTC().day,
-            dateTime.toUTC().hour,
-            dateTime.toUTC().minute,
-            dateTime.toUTC().second,
-            sidMode,
-            location.longitude,
-            location.latitude,
-            house,
-            258 | (helio ? 8 : 0),
-          ]
-        )
-      )
-    );
-  }
-  if (!wasm) {
-    return <Button onClick={HandleWasm}>Calculate</Button>;
-  }
+
+  const wasm = JSON.parse(
+    window.Module.ccall(
+      "get",
+      "string",
+      [
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "number",
+        "string",
+        "number",
+      ],
+      [
+        dateTime.toUTC().year,
+        dateTime.toUTC().month,
+        dateTime.toUTC().day,
+        dateTime.toUTC().hour,
+        dateTime.toUTC().minute,
+        dateTime.toUTC().second,
+        sidMode,
+        location.longitude,
+        location.latitude,
+        house,
+        258 | (helio ? 8 : 0),
+      ]
+    )
+  );
+
   const paramLon = siderealOrTropical ? "lon_sid" : "lon";
   console.log(wasm);
   const cusps = Object.values(wasm.house).map((item) => item[paramLon]);
@@ -327,13 +302,46 @@ function App() {
       planetFromWasm(planet);
     }
   });
-  if (shownPlanets.Node) {
-    planetFromWasm(nodeType + " Node");
-  }
-  console.log("shownPlanets.Lilith", shownPlanets.Lilith);
-  if (shownPlanets.Lilith) {
-    const nameLilith = lilithType === "mean" ? "mean Apogee" : "osc. Apogee";
-    planetFromWasm(nameLilith);
+  if (!helio) {
+    if (shownPlanets.Node) {
+      planetFromWasm(nodeType + " Node");
+    }
+    if (shownPlanets.Lilith) {
+      const nameLilith = lilithType === "mean" ? "mean Apogee" : "osc. Apogee";
+      planetFromWasm(nameLilith);
+    }
+
+    const distanceASCToSun = distance(
+      wasm.ascmc["Asc"][paramLon],
+      wasm.planets["Sun"][paramLon]
+    );
+    const dayOrNight = distanceASCToSun >= 0 && distanceASCToSun < 180;
+    const distanceMoonToSun = distance(
+      wasm.planets["Moon"][paramLon],
+      wasm.planets["Sun"][paramLon]
+    );
+    if (shownPlanets["Ft. P."]) {
+      planetState["Ft. P."] = {
+        lon:
+          (wasm.ascmc["Asc"][paramLon] +
+            (dayOrNight ? distanceMoonToSun : -distanceMoonToSun) +
+            360) %
+          360,
+        speed: 1024,
+      };
+    }
+    if (shownPlanets["Sp. P."]) {
+      planetState["Sp. P."] = {
+        lon:
+          (wasm.ascmc["Asc"][paramLon] +
+            (dayOrNight ? -distanceMoonToSun : distanceMoonToSun) +
+            360) %
+          360,
+        speed: 1024,
+      };
+    }
+  } else {
+    delete planetState["Sun"];
   }
 
   if (house === "W" || house === "E") {
@@ -349,40 +357,7 @@ function App() {
   if (shownPlanets["Vertex"]) {
     planetState["Vtx"] = { lon: wasm.ascmc["Vtx"][paramLon], speed: 1024 };
   }
-  const distanceASCToSun = distance(
-    wasm.ascmc["Asc"][paramLon],
-    wasm.planets["Sun"][paramLon]
-  );
-  const dayOrNight = distanceASCToSun >= 0 && distanceASCToSun < 180;
-  const distanceMoonToSun = distance(
-    wasm.planets["Moon"][paramLon],
-    wasm.planets["Sun"][paramLon]
-  );
-  if (shownPlanets["Ft. P."]) {
-    planetState["Ft. P."] = {
-      lon:
-        (wasm.ascmc["Asc"][paramLon] +
-          (dayOrNight ? distanceMoonToSun : -distanceMoonToSun) +
-          360) %
-        360,
-      speed: 1024,
-    };
-  }
-  console.log(
-    wasm.ascmc["Asc"][paramLon],
-    dayOrNight ? distanceMoonToSun : -distanceMoonToSun
-  );
 
-  if (shownPlanets["Sp. P."]) {
-    planetState["Sp. P."] = {
-      lon:
-        (wasm.ascmc["Asc"][paramLon] +
-          (dayOrNight ? -distanceMoonToSun : distanceMoonToSun) +
-          360) %
-        360,
-      speed: 1024,
-    };
-  }
   // console.log("hey!", planetState["Sp. P."].lon, planetState["Ft. P."].lon);
   // Use useMatch to get information about the matched route
   // const match = useMatches();
@@ -390,28 +365,28 @@ function App() {
   console.log("state", planetState);
   return (
     <Container className="d-flex flex-column align-items-center w-100">
-      <Col className="d-flex mb-2">
-        <Link to="/" className="mx-3">
-          Chart
-        </Link>
-        <Link to="vedic" className="mx-3">
-          Vedic
-        </Link>
-        <Link to="bazi" className="mx-3">
-          Bazi
-        </Link>
-      </Col>
-      <Button onClick={HandleWasm}>Calculate</Button>
+      {/* 无奈之举，给两万行的wasm解析文件一点加载时间 */}
+      {/* {isOver1800.current > 32 && (
+        <Button
+          onClick={() => {
+            isOver1800.current = false;
+          }}
+        >
+          Unlock
+        </Button>
+      )} */}
+      {/* <Button onClick={HandleWasm}>Calculate</Button> */}
       <Accordion className="mb-2">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
             <Stack direction="horizontal" className="w-100">
               <Row>
-                <Col>{dateTime.toFormat("EEE, yyyy, LLL dd HH:mm:ss ZZ")}</Col>
-                <Col>
-                  <div className="d-none d-md-inline">Julian Date(ut): </div>
-                  {wasm.initDate.jd_ut.toFixed(4)}
+                <Col>{dateTime.toFormat("yyyy-MM-dd HH:mm:ss ZZ EEE")}</Col>
+
+                <Col className="d-none d-md-inline">
+                  Julian Date(ut): {wasm.initDate.jd_ut.toFixed(4)}
                 </Col>
+
                 <Col>
                   <div className="d-none d-md-flex">Lon/Lat: </div>
                   {formatLocation(location)}
@@ -457,12 +432,12 @@ function App() {
             <Stack direction="horizontal" className="w-100">
               <Row>
                 <Col>
-                  <div className="d-none d-md-inline">Sidereal Mode: </div>
-                  {sidOptions[sidMode]}
+                  <div className="d-none d-md-flex">Ayanamsa: </div>
+                  <div>{sidOptions[sidMode]}</div>
                 </Col>
                 <Col>
-                  <div className="d-none d-md-inline">House: </div>
-                  {houseOptions[house]}
+                  <div className="d-none d-md-flex">House: </div>
+                  <div>{houseOptions[house]}</div>
                 </Col>
               </Row>
               <Row className="ms-auto">
@@ -524,8 +499,6 @@ function App() {
         </Accordion.Item>
       </Accordion>
       <Outlet context={[planetState, cusps]} />
-      <Form.Control type="datetime-local" />
-      <Form.Control type="date" />
     </Container>
   );
 }

@@ -32,21 +32,18 @@ function LocationComponent({ updateGeo }) {
 
   // Return an HTML page for the user to check their location
   return (
-    <>
-      {/* Create a button that is mapped to the function which retrieves the user's location */}
-      <Button
-        size="sm"
-        className="mb-2"
-        onClick={(e) => {
-          e.stopPropagation(); // Stop the event from propagating
-          getUserLocation();
-        }}
-        // className="mb-2"
-        // style={{ width: "155px" }}
-      >
-        Get Loc.
-      </Button>
-    </>
+    <Button
+      size="sm"
+      className="mb-2"
+      onClick={(e) => {
+        e.stopPropagation(); // Stop the event from propagating
+        getUserLocation();
+      }}
+      // className="mb-2"
+      // style={{ width: "155px" }}
+    >
+      Here
+    </Button>
   );
 }
 

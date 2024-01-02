@@ -23,10 +23,23 @@ import Ceres from "../assets/Ceres.svg?react";
 import Pallas from "../assets/Pallas.svg?react";
 import Juno from "../assets/Juno.svg?react";
 import Vesta from "../assets/Vesta.svg?react";
+import Sign1 from "../assets/1.svg?react";
+import Sign2 from "../assets/2.svg?react";
+import Sign3 from "../assets/3.svg?react";
+import Sign4 from "../assets/4.svg?react";
+import Sign5 from "../assets/5.svg?react";
+import Sign6 from "../assets/6.svg?react";
+import Sign7 from "../assets/7.svg?react";
+import Sign8 from "../assets/8.svg?react";
+import Sign9 from "../assets/9.svg?react";
+import Sign10 from "../assets/10.svg?react";
+import Sign11 from "../assets/11.svg?react";
+import Sign0 from "../assets/0.svg?react";
 
 // import Vesta from "../assets/Vesta.svg?react";
 
 function SVGFile(props) {
+  console.log(props.planet);
   switch (props.planet) {
     case "Sun":
       return <Sun {...props} />;
@@ -58,8 +71,6 @@ function SVGFile(props) {
       return <TrueApogee {...props} />;
     case "Chiron":
       return <Chiron {...props} />;
-    // case "Pholus":
-    //   return <Pholus {...props} />;
     case "Ceres":
       return <Ceres {...props} />;
     case "Pallas":
@@ -70,6 +81,30 @@ function SVGFile(props) {
       return <Pholus {...props} />;
     case "Vesta":
       return <Vesta {...props} />;
+    case 1:
+      return <Sign1 {...props} />;
+    case 2:
+      return <Sign2 {...props} />;
+    case 3:
+      return <Sign3 {...props} />;
+    case 4:
+      return <Sign4 {...props} />;
+    case 5:
+      return <Sign5 {...props} />;
+    case 6:
+      return <Sign6 {...props} />;
+    case 7:
+      return <Sign7 {...props} />;
+    case 8:
+      return <Sign8 {...props} />;
+    case 9:
+      return <Sign9 {...props} />;
+    case 10:
+      return <Sign10 {...props} />;
+    case 11:
+      return <Sign11 {...props} />;
+    case 0:
+      return <Sign0 {...props} />;
     default:
       return;
     // props.retText(props.planet);
@@ -101,6 +136,7 @@ export function Text({
       fontWeight={fontWeight}
       stroke="white"
       paintOrder="stroke"
+      strokeWidth="2"
     >
       {text}
     </text>
@@ -115,6 +151,7 @@ export function Symbols({
   color = "#000",
   sizeCanves,
 }) {
+  console.log("symbolName", symbolName);
   const cos_value = Math.cos(degreesToRadians(theta - leftDegree));
   const sin_value = Math.sin(degreesToRadians(theta - leftDegree));
   const x = (-radius * cos_value * sizeCanves) / 100;
@@ -131,6 +168,7 @@ export function Symbols({
   //     />
   //   );
   // }
+
   return (
     <SVGFile
       planet={symbolName}
