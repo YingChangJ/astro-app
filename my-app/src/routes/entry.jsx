@@ -5,6 +5,7 @@ import { DateTime } from "../lib/luxon.min.js";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
+
 export default function Entry() {
   const [dateTime, setDateTime, location, setLocation] = useOutletContext();
 
@@ -49,17 +50,26 @@ export default function Entry() {
   function handleSubmit(e) {
     e.preventDefault(); // 阻止表單的默認提交行為
     //dateTime
-    console.log("what inside", DateTime.now().offset);
+    const parsedYear = parseInt(inputValues.year);
+    const parsedMonth = parseInt(inputValues.year);
+    const parsedDay = parseFloat(inputValues.year);
+    const parsedHour = parseFloat(inputValues.year);
+    const parsedMinute = parseFloat(inputValues.year);
+    const parsedSecond = parseInt(inputValues.year);
+    const parsedTimeZone = parseFloat(inputValues.year);
+
     const updatedDateTime = DateTime.fromObject(
       {
-        year: parseInt(inputValues.year) || 0,
-        month: parseInt(inputValues.month) || 1,
-        day: parseInt(inputValues.day) || 1,
-        hour: parseInt(inputValues.hour) || 0, // 时、分、秒等属性可以根据需要添加
-        minute: parseInt(inputValues.minute) || 0,
-        second: parseInt(inputValues.second) || 0,
+        year: isNaN(parsedYear) ? dateTime.year : parsedYear,
+        month: isNaN(parsedMonth) ? dateTime.year : parsedMonth,
+        day: isNaN(parsedDay) ? dateTime.year : parsedDay,
+        hour: isNaN(parsedHour) ? dateTime.year : parsedHour, // 时、分、秒等属性可以根据需要添加
+        minute: isNaN(parsedMinute) ? dateTime.year : parsedMinute,
+        second: isNaN(parsedSecond) ? dateTime.year : parsedSecond,
       },
-      { zone: (parseFloat(inputValues.timeZone) || 0) * 60 }
+      {
+        zone: (isNaN(parsedTimeZone) ? dateTime.timeZone : parsedTimeZone) * 60,
+      }
     );
     if (updatedDateTime.isValid) {
       const takeFractionalHour = updatedDateTime.plus({
@@ -100,32 +110,35 @@ export default function Entry() {
       latSec: "",
     });
   }
-  function handleReset() {
-    setInputValues({
-      year: dateTime.year,
-      month: dateTime.month,
-      day: dateTime.day,
-      hour: dateTime.hour,
-      minute: dateTime.minute,
-      second: dateTime.second,
-      timeZone: dateTime.toFormat("Z"),
-      lonDeg: Math.abs(location.longitude),
-      latDeg: Math.abs(location.latitude),
-      lonMin: 0,
-      lonSec: 0,
-      latMin: 0,
-      latSec: 0,
-    });
-    setLocationDirection({
-      ew: location.longitude >= 0,
-      ns: location.latitude >= 0,
-    });
-  }
+  // function handleReset() {
+  //   setInputValues({
+  //     year: dateTime.year,
+  //     month: dateTime.month,
+  //     day: dateTime.day,
+  //     hour: dateTime.hour,
+  //     minute: dateTime.minute,
+  //     second: dateTime.second,
+  //     timeZone: dateTime.toFormat("Z"),
+  //     lonDeg: Math.abs(location.longitude),
+  //     latDeg: Math.abs(location.latitude),
+  //     lonMin: 0,
+  //     lonSec: 0,
+  //     latMin: 0,
+  //     latSec: 0,
+  //   });
+  //   setLocationDirection({
+  //     ew: location.longitude >= 0,
+  //     ns: location.latitude >= 0,
+  //   });
+  // }
   const buttonStyle = {
     width: "40px", // 或者您可以使用相對單位，例如 '2em'
   };
+  const LonLatStyle = {
+    width: "50px", // 或者您可以使用相對單位，例如 '2em'
+  };
   return (
-    <Form className="col-md-6 col-xl-4 d-flex flex-column align-items-center">
+    <Form className="col-sm-12 col-md-8 col-xl-6 container">
       <InputGroup size="sm" className="mb-3">
         <InputGroup.Text>Year</InputGroup.Text>
         <Form.Control
@@ -203,7 +216,7 @@ export default function Entry() {
         />
       </InputGroup>
       <InputGroup size="sm" className="mb-3">
-        <InputGroup.Text>Lon</InputGroup.Text>
+        <InputGroup.Text style={LonLatStyle}>Lon</InputGroup.Text>
         <Button
           onClick={() => handleLocationDirectionChange("ew")}
           size="sm"
@@ -244,7 +257,7 @@ export default function Entry() {
         <InputGroup.Text>″</InputGroup.Text>
       </InputGroup>
       <InputGroup size="sm" className="mb-3">
-        <InputGroup.Text>Lat</InputGroup.Text>
+        <InputGroup.Text style={LonLatStyle}>Lat</InputGroup.Text>
         <Button
           onClick={() => handleLocationDirectionChange("ns")}
           size="sm"
@@ -284,7 +297,7 @@ export default function Entry() {
         />
         <InputGroup.Text>″</InputGroup.Text>
       </InputGroup>
-      <Col>
+      <div>
         {" "}
         <Button onClick={handleSubmit} size="sm">
           Submit
@@ -292,10 +305,10 @@ export default function Entry() {
         <Button onClick={handleClear} size="sm" className="m-2">
           Clear
         </Button>
-        <Button onClick={handleReset} size="sm">
+        {/* <Button onClick={handleReset} size="sm">
           Reset
-        </Button>
-      </Col>
+        </Button> */}
+      </div>
     </Form>
   );
 }
