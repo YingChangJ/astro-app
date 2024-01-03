@@ -1,282 +1,203 @@
 {
   "initDate": {
-    "year": 2022,
-    "month": 12,
-    "day": 31,
-    "hour": 12,
-    "minute": 52,
-    "second": 14,
-    "jd_ut": 2459945.036273
+    "year": 2024,
+    "month": 1,
+    "day": 3,
+    "hour": 10,
+    "minute": 57,
+    "second": 35,
+    "jd_ut": 2460312.956655
   },
-  "ayan": 24.175431,
   "planets": {
     "Sun": {
-      "lon": 279.811329,
-      "lon_sid": 255.635898,
-      "lat": -0.000078,
-      "distance": 0.983348,
-      "speed": 1.019042,
-      "speed_lat": 0.000042,
-      "speed_distance": -0.000025,
+      "lon": 257.46841,
+      "lat": 0.000085,
+      "distance": 0.983307,
+      "speed": 1.019168,
+      "speed_lat": -0.000035,
+      "speed_distance": 0.000002,
       "iflagret": 65858
     },
     "Moon": {
-      "lon": 27.717464,
-      "lon_sid": 3.542033,
-      "lat": -1.240638,
-      "distance": 0.00259,
-      "speed": 12.859437,
-      "speed_lat": 1.114021,
-      "speed_distance": 0.000032,
+      "lon": 159.952335,
+      "lat": 1.388648,
+      "distance": 0.002693,
+      "speed": 11.872478,
+      "speed_lat": -1.007733,
+      "speed_distance": -0.000015,
       "iflagret": 65858
     },
     "Mercury": {
-      "lon": 293.916233,
-      "lon_sid": 269.740802,
-      "lat": 0.717345,
-      "distance": 0.758583,
-      "speed": -0.416119,
-      "speed_lat": 0.318351,
-      "speed_distance": -0.02079,
+      "lon": 237.237449,
+      "lat": 2.869718,
+      "distance": 0.826574,
+      "speed": 0.193256,
+      "speed_lat": -0.101115,
+      "speed_distance": 0.020585,
       "iflagret": 65858
     },
     "Venus": {
-      "lon": 296.80175,
-      "lon_sid": 272.626319,
-      "lat": -1.37135,
-      "distance": 1.608856,
-      "speed": 1.252668,
-      "speed_lat": -0.021475,
-      "speed_distance": -0.002878,
+      "lon": 220.528412,
+      "lat": 1.873674,
+      "distance": 1.197264,
+      "speed": 1.218341,
+      "speed_lat": -0.032382,
+      "speed_distance": 0.006217,
       "iflagret": 65858
     },
     "Mars": {
-      "lon": 69.141308,
-      "lon_sid": 44.965877,
-      "lat": 2.810389,
-      "distance": 0.635729,
-      "speed": -0.166063,
-      "speed_lat": 0.007706,
-      "speed_distance": 0.005764,
+      "lon": 244.057927,
+      "lat": -0.574378,
+      "distance": 2.416263,
+      "speed": 0.743261,
+      "speed_lat": -0.009692,
+      "speed_distance": -0.003098,
       "iflagret": 65858
     },
     "Jupiter": {
-      "lon": 1.137326,
-      "lon_sid": 336.961895,
-      "lat": -1.288772,
-      "distance": 5.003107,
-      "speed": 0.119368,
-      "speed_lat": 0.004122,
-      "speed_distance": 0.015716,
+      "lon": 10.526253,
+      "lat": -1.172909,
+      "distance": 4.517646,
+      "speed": 0.011547,
+      "speed_lat": 0.005114,
+      "speed_distance": 0.014848,
       "iflagret": 65858
     },
     "Saturn": {
-      "lon": 322.372687,
-      "lon_sid": 298.197256,
-      "lat": -1.243542,
-      "distance": 10.537315,
-      "speed": 0.09934,
-      "speed_lat": 0.000286,
-      "speed_distance": 0.011206,
+      "lon": 308.390137,
+      "lat": -1.631259,
+      "distance": 10.326804,
+      "speed": 0.091177,
+      "speed_lat": 0.001135,
+      "speed_distance": 0.012875,
       "iflagret": 65858
     },
     "Uranus": {
-      "lon": 45.156266,
-      "lon_sid": 20.980835,
-      "lat": -0.357072,
-      "distance": 19.084885,
-      "speed": -0.018869,
-      "speed_lat": 0.000399,
-      "speed_distance": 0.013956,
+      "lon": 24.258238,
+      "lat": -0.305226,
+      "distance": 19.008488,
+      "speed": -0.020082,
+      "speed_lat": 0.000365,
+      "speed_distance": 0.013673,
       "iflagret": 65858
     },
     "Neptune": {
-      "lon": 352.863291,
-      "lon_sid": 328.68786,
-      "lat": -1.187029,
-      "distance": 30.184413,
-      "speed": 0.015667,
-      "speed_lat": 0.00052,
-      "speed_distance": 0.016612,
+      "lon": 330.039415,
+      "lat": -1.23589,
+      "distance": 30.183492,
+      "speed": 0.015851,
+      "speed_lat": 0.000548,
+      "speed_distance": 0.016575,
       "iflagret": 65858
     },
     "Pluto": {
-      "lon": 297.643208,
-      "lon_sid": 273.467777,
-      "lat": -2.251573,
-      "distance": 35.611091,
-      "speed": 0.03149,
-      "speed_lat": -0.001076,
-      "speed_distance": 0.006031,
+      "lon": 274.360151,
+      "lat": -2.769748,
+      "distance": 35.86298,
+      "speed": 0.031337,
+      "speed_lat": -0.001002,
+      "speed_distance": 0.005789,
       "iflagret": 65858
     },
     "mean Node": {
-      "lon": 40.22813,
-      "lon_sid": 16.052699,
+      "lon": 355.672658,
       "lat": 0,
       "distance": 0.00257,
-      "speed": -0.052959,
+      "speed": -0.052992,
       "speed_lat": 0,
       "speed_distance": 0,
       "iflagret": 65858
     },
     "true Node": {
-      "lon": 41.746617,
-      "lon_sid": 17.571186,
+      "lon": 355.882517,
       "lat": 0,
-      "distance": 0.002623,
-      "speed": 0.01514,
+      "distance": 0.002401,
+      "speed": -0.009266,
       "speed_lat": 0,
-      "speed_distance": 0,
+      "speed_distance": -0.000004,
       "iflagret": 65858
     },
     "mean Apogee": {
-      "lon": 119.099732,
-      "lon_sid": 94.924301,
-      "lat": 5.049153,
+      "lon": 135.172616,
+      "lat": 3.346871,
       "distance": 0.002711,
-      "speed": 0.112014,
-      "speed_lat": 0.002839,
+      "speed": 0.111263,
+      "speed_lat": -0.011208,
       "speed_distance": 0,
       "iflagret": 65858
     },
     "osc. Apogee": {
-      "lon": 96.243697,
-      "lon_sid": 72.068266,
-      "lat": 4.159668,
-      "distance": 0.002691,
-      "speed": 1.86219,
-      "speed_lat": 0.09095,
-      "speed_distance": 0.000002,
+      "lon": 137.618125,
+      "lat": 3.130771,
+      "distance": 0.002708,
+      "speed": -0.684104,
+      "speed_lat": 0.048428,
+      "speed_distance": 0.000001,
       "iflagret": 65858
     },
     "Chiron": {
-      "lon": 11.965443,
-      "lon_sid": 347.790012,
-      "lat": 1.766286,
-      "distance": 18.751574,
-      "speed": 0.007487,
-      "speed_lat": -0.002747,
-      "speed_distance": 0.017116,
+      "lon": 350.402193,
+      "lat": 1.351691,
+      "distance": 18.646226,
+      "speed": 0.006703,
+      "speed_lat": -0.0024,
+      "speed_distance": 0.016988,
       "iflagret": 65858
     },
     "Pholus": {
-      "lon": 276.717063,
-      "lon_sid": 252.541632,
-      "lat": 9.877214,
-      "distance": 30.557007,
-      "speed": 0.037047,
-      "speed_lat": -0.001236,
-      "speed_distance": 0.000007,
+      "lon": 253.115973,
+      "lat": 9.314899,
+      "distance": 30.876044,
+      "speed": 0.036476,
+      "speed_lat": -0.001143,
+      "speed_distance": -0.000411,
       "iflagret": 65858
     },
     "Ceres": {
-      "lon": 183.057882,
-      "lon_sid": 158.882451,
-      "lat": 11.863654,
-      "distance": 2.242437,
-      "speed": 0.21439,
-      "speed_lat": 0.077809,
-      "speed_distance": -0.012637,
+      "lon": 231.369893,
+      "lat": 1.861154,
+      "distance": 3.610586,
+      "speed": 0.406535,
+      "speed_lat": -0.026053,
+      "speed_distance": -0.005266,
       "iflagret": 65858
     },
     "Pallas": {
-      "lon": 110.977512,
-      "lon_sid": 86.802081,
-      "lat": -54.476901,
-      "distance": 1.446907,
-      "speed": -0.321796,
-      "speed_lat": 0.020783,
-      "speed_distance": -0.003069,
+      "lon": 203.430709,
+      "lat": 19.212262,
+      "distance": 3.047121,
+      "speed": 0.378663,
+      "speed_lat": 0.163091,
+      "speed_distance": -0.008316,
       "iflagret": 65858
     },
     "Juno": {
-      "lon": 354.373545,
-      "lon_sid": 330.198114,
-      "lat": -6.831556,
-      "distance": 2.091702,
-      "speed": 0.420925,
-      "speed_lat": -0.032729,
-      "speed_distance": 0.009386,
+      "lon": 146.441622,
+      "lat": -5.748102,
+      "distance": 1.987111,
+      "speed": 0.071804,
+      "speed_lat": 0.030881,
+      "speed_distance": -0.009854,
       "iflagret": 65858
     },
     "Vesta": {
-      "lon": 343.839858,
-      "lon_sid": 319.664427,
-      "lat": -6.370659,
-      "distance": 2.677416,
-      "speed": 0.390611,
-      "speed_lat": 0.023066,
-      "speed_distance": 0.012498,
+      "lon": 61.32379,
+      "lat": -2.285195,
+      "distance": 1.603855,
+      "speed": -0.239206,
+      "speed_lat": 0.049913,
+      "speed_distance": 0.003462,
       "iflagret": 65858
     }
   },
   "ascmc": {
-    "Asc": {
-      "lon": 24.81681,
-      "lon_sid": 0.641379
-    },
-    "MC": {
-      "lon": 291.269002,
-      "lon_sid": 267.093571
-    },
-    "EP": {
-      "lon": 24.81681,
-      "lon_sid": 0.641379
-    },
-    "Vtx": {
-      "lon": 180,
-      "lon_sid": 155.824569
-    }
+    "Asc": 331.622269,
+    "MC": 242.144053,
+    "EP": 331.622269,
+    "Vtx": 154.925875
   },
-  "house": {
-    "1": {
-      "lon": 24.81681,
-      "lon_sid": 0.641379
-    },
-    "2": {
-      "lon": 55.331018,
-      "lon_sid": 31.155587
-    },
-    "3": {
-      "lon": 83.563228,
-      "lon_sid": 59.387797
-    },
-    "4": {
-      "lon": 111.269002,
-      "lon_sid": 87.093571
-    },
-    "5": {
-      "lon": 140.592708,
-      "lon_sid": 116.417277
-    },
-    "6": {
-      "lon": 172.366611,
-      "lon_sid": 148.19118
-    },
-    "7": {
-      "lon": 204.81681,
-      "lon_sid": 180.641379
-    },
-    "8": {
-      "lon": 235.331018,
-      "lon_sid": 211.155587
-    },
-    "9": {
-      "lon": 263.563228,
-      "lon_sid": 239.387797
-    },
-    "10": {
-      "lon": 291.269002,
-      "lon_sid": 267.093571
-    },
-    "11": {
-      "lon": 320.592708,
-      "lon_sid": 296.417277
-    },
-    "12": {
-      "lon": 352.366611,
-      "lon_sid": 328.19118
-    }
-  }
+  "house": [
+    331.622269, 3.938296, 34.108011, 62.144053, 89.951269, 119.60205,
+    151.622269, 183.938296, 214.108011, 242.144053, 269.951269, 299.60205
+  ]
 }

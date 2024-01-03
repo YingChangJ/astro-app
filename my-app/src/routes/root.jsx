@@ -40,26 +40,28 @@ export default function Root() {
   return (
     <div className="text-center">
       <div className="nav justify-content-center">
-        {/* TODO: 把type搞掉，App内容分流到root, entry and chart */}
-        <Link to="type/chart" className="nav-link">
+        <Link to="chart" className="nav-link">
           Chart
         </Link>
-        <Link to="type/vedic" className="nav-link ms-5 me-5">
+        <Link to="vedic" className="nav-link ms-5 me-5">
           Vedic
         </Link>
-        <Link to="type/bazi" className="nav-link">
+        <Link to="bazi" className="nav-link">
           Bazi
         </Link>
       </div>
       <div className="col-md-8 col-xl-6 container">
         <div className="d-flex justify-content-between">
-          <p className="fs-6">
+          {/* <Button variant="light" size="sm" onClick={} className="fs-6">
+
+          </Button> */}
+          <Link to="/" className="nav-link">
             {dateTime.toFormat("yyyy-MM-dd HH:mm:ss Z EEE")}
             <br />
             {formatLocation(location)}
-          </p>
+          </Link>
           <div className="ms-auto ">
-            <div className="col">
+            <div className="col ">
               <Button onClick={() => addOrMinusTime(-1)} className="" size="sm">
                 -
               </Button>

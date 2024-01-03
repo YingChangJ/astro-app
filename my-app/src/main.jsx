@@ -23,13 +23,9 @@ const router = createBrowserRouter(
     <Route path="/" element={<Root />} errorElement={<ErrorPage />}>
       {/* entry:set time */}
       <Route index element={<Entry />}></Route>
-      {/* change settings */}
-      <Route path="type" element={<App />}>
-        {/* use time/location to calculate */}
-        <Route path="chart" element={<Chart />} />
-        <Route path="bazi" element={<Bazi />} />
-        <Route path="vedic" element={<Vedic />} />
-      </Route>
+      <Route path="chart" element={<Chart />} />
+      <Route path="bazi" element={<Bazi />} />
+      <Route path="vedic" element={<Vedic />} />
     </Route>
   )
 );
