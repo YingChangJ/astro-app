@@ -50,26 +50,27 @@ export default function Entry() {
     e.preventDefault(); // 阻止表單的默認提交行為
     //dateTime
     const parsedYear = parseInt(inputValues.year);
-    const parsedMonth = parseInt(inputValues.year);
-    const parsedDay = parseFloat(inputValues.year);
-    const parsedHour = parseFloat(inputValues.year);
-    const parsedMinute = parseFloat(inputValues.year);
-    const parsedSecond = parseInt(inputValues.year);
-    const parsedTimeZone = parseFloat(inputValues.year);
+    const parsedMonth = parseInt(inputValues.month);
+    const parsedDay = parseFloat(inputValues.day);
+    const parsedHour = parseFloat(inputValues.hour);
+    const parsedMinute = parseFloat(inputValues.minute);
+    const parsedSecond = parseInt(inputValues.second);
+    const parsedTimeZone = parseFloat(inputValues.timeZone);
 
     const updatedDateTime = DateTime.fromObject(
       {
         year: isNaN(parsedYear) ? dateTime.year : parsedYear,
-        month: isNaN(parsedMonth) ? dateTime.year : parsedMonth,
-        day: isNaN(parsedDay) ? dateTime.year : parsedDay,
-        hour: isNaN(parsedHour) ? dateTime.year : parsedHour, // 时、分、秒等属性可以根据需要添加
-        minute: isNaN(parsedMinute) ? dateTime.year : parsedMinute,
-        second: isNaN(parsedSecond) ? dateTime.year : parsedSecond,
+        month: isNaN(parsedMonth) ? dateTime.month : parsedMonth,
+        day: isNaN(parsedDay) ? dateTime.day : parsedDay,
+        hour: isNaN(parsedHour) ? dateTime.hour : parsedHour, // 时、分、秒等属性可以根据需要添加
+        minute: isNaN(parsedMinute) ? dateTime.minute : parsedMinute,
+        second: isNaN(parsedSecond) ? dateTime.second : parsedSecond,
       },
       {
         zone: (isNaN(parsedTimeZone) ? dateTime.timeZone : parsedTimeZone) * 60,
       }
     );
+    console.log(updatedDateTime);
     if (updatedDateTime.isValid) {
       const takeFractionalHour = updatedDateTime.plus({
         seconds:
