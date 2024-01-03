@@ -1,18 +1,15 @@
 import { Outlet, Link } from "react-router-dom";
-import Col from "react-bootstrap/Col";
 import { DateTime } from "../lib/luxon.min.js";
 import { useState } from "react";
-import Row from "react-bootstrap/Row";
 import Form from "react-bootstrap/Form";
-import Nav from "react-bootstrap/Nav";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 export default function Root() {
   //location and datetime: they are
   const [dateTime, setDateTime] = useState(DateTime.now());
   const [location, setLocation] = useState({ longitude: 0, latitude: 0 });
-  const [number, setNumber] = useState("");
-  const [unit, setUnit] = useState("");
+  const [number, setNumber] = useState("1");
+  const [unit, setUnit] = useState("day");
   const [show, setShow] = useState(false); //Modal
   // 处理数字选择变化的回调
   const handleNumberChange = (event) => {
@@ -54,18 +51,15 @@ export default function Root() {
           Bazi
         </Link>
       </div>
-      <div className="col-sm-12 col-md-8 col-xl-6 container">
+      <div className="col-md-8 col-xl-6 container">
         <div className="d-flex justify-content-between">
           <p className="fs-6">
-            {dateTime.toFormat("yyyy-MM-dd HH:mm:ss ZZ EEE")}
+            {dateTime.toFormat("yyyy-MM-dd HH:mm:ss Z EEE")}
             <br />
             {formatLocation(location)}
           </p>
-          <div className="ms-auto">
-            <Button onClick={setTimeNow} className="" size="sm">
-              Now
-            </Button>
-            <div className="d-flex">
+          <div className="ms-auto ">
+            <div className="col">
               <Button onClick={() => addOrMinusTime(-1)} className="" size="sm">
                 -
               </Button>
@@ -119,6 +113,9 @@ export default function Root() {
 
               <Button onClick={() => addOrMinusTime(1)} className="" size="sm">
                 +
+              </Button>
+              <Button onClick={setTimeNow} className="" size="sm">
+                Now
               </Button>
             </div>
           </div>

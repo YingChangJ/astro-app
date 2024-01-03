@@ -3,7 +3,6 @@ import Form from "react-bootstrap/Form";
 import { useState } from "react";
 import { DateTime } from "../lib/luxon.min.js";
 import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 
 export default function Entry() {
